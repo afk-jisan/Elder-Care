@@ -1,5 +1,12 @@
 import { Router } from 'express';
 import {
+  listAssignedElders,
+  listVisits,
+  getActiveVisit,
+  checkIn,
+  checkOut,
+} from '../controllers/caregiverCheckInController.js';
+import {
   listPendingAssignments,
   respondToCarePlan,
 } from '../controllers/familyCarePlanController.js';
@@ -11,5 +18,10 @@ router.use(authenticate, authorize('caregiver'));
 
 router.get('/assignments/pending', listPendingAssignments);
 router.post('/assignments/:id/respond', respondToCarePlan);
+router.get('/assignments/active', listAssignedElders);
+router.get('/visits', listVisits);
+router.get('/visits/active', getActiveVisit);
+router.post('/check-in', checkIn);
+router.post('/check-out', checkOut);
 
 export default router;

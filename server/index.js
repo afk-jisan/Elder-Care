@@ -5,7 +5,7 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import adminUserRoutes from './routes/adminUserRoutes.js';
 import familyRoutes from './routes/familyRoutes.js';
-import caregiverAssignmentRoutes from './routes/caregiverAssignmentRoutes.js';
+import caregiverRoutes from './routes/caregiverRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -17,7 +17,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/', (req, res) => {
   res.send('Elder Care API');
@@ -30,7 +30,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/family', familyRoutes);
-app.use('/api/caregiver', caregiverAssignmentRoutes);
+app.use('/api/caregiver', caregiverRoutes);
 app.use(errorHandler);
 
 async function start() {
