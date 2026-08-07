@@ -2,7 +2,7 @@ import { User, ROLES } from '../models/User.js';
 
 function publicUser(user) {
   return {
-    id: user._id,
+    id: user._id.toString(),
     name: user.name,
     email: user.email,
     phone: user.phone,

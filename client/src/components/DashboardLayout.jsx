@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { useAuth } from '../context/AuthContext';
 import { ROLE_NAV } from '../lib/navConfig';
 import { homePathForRole } from '../lib/rolePaths';
@@ -18,10 +19,7 @@ export default function DashboardLayout({ title, children }) {
         <div className="topbar-brand">
           <Link to={homePathForRole(user.role)}>Elder Care</Link>
         </div>
-        <div className="topbar-user">
-          <span className="muted">
-            {user.name} · {user.role}
-          </span>
+        <div className="topbar-actions">
           <button type="button" className="secondary" onClick={() => logout()}>
             Log out
           </button>
@@ -40,10 +38,22 @@ export default function DashboardLayout({ title, children }) {
                   isActive ? 'sidebar-link active' : 'sidebar-link'
                 }
               >
-                {link.label}
+                {link.icon && (
+                  <HugeiconsIcon
+                    icon={link.icon}
+                    size={18}
+                    strokeWidth={1.8}
+                    className="sidebar-link-icon"
+                  />
+                )}
+                <span>{link.label}</span>
               </NavLink>
             ))}
           </nav>
+          <div className="sidebar-footer">
+            <span className="sidebar-profile-name">{user.name}</span>
+            <span className="sidebar-profile-role">{user.role}</span>
+          </div>
         </aside>
 
         <main className="dashboard-main">

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import Modal from '../../components/Modal';
 import { apiRequest } from '../../api/client';
 
 const ROLES = ['family', 'caregiver', 'doctor', 'admin'];
@@ -15,11 +16,13 @@ const emptyForm = {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [modalMode, setModalMode] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [filterRole, setFilterRole] = useState('');
   const [filterActive, setFilterActive] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -35,6 +38,7 @@ export default function AdminUsersPage() {
       setUsers(data.users || []);
     } catch (err) {
       setError(err.message);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -48,7 +52,24 @@ export default function AdminUsersPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  function startEdit(user) {
+  const closeModal = useCallback(() => {
+    setModalMode(null);
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError('');
+  }, []);
+
+  function openCreate() {
+    setModalMode('create');
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError('');
+    setMessage('');
+    setError('');
+  }
+
+  function openEdit(user) {
+    setModalMode('edit');
     setEditingId(user.id);
     setForm({
       name: user.name,
@@ -57,22 +78,17 @@ export default function AdminUsersPage() {
       password: '',
       role: user.role,
     });
+    setFormError('');
     setMessage('');
     setError('');
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(emptyForm);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setFormError('');
     setSaving(true);
     try {
-      if (editingId) {
+      if (modalMode === 'edit' && editingId) {
         const payload = {
           name: form.name,
           email: form.email,
@@ -87,18 +103,17 @@ export default function AdminUsersPage() {
           body: JSON.stringify(payload),
         });
         setMessage('User updated');
-        cancelEdit();
       } else {
         await apiRequest('/admin/users', {
           method: 'POST',
           body: JSON.stringify(form),
         });
         setMessage('User created');
-        setForm(emptyForm);
       }
+      closeModal();
       await loadUsers();
     } catch (err) {
-      setError(err.message);
+      setFormError(err.message);
     } finally {
       setSaving(false);
     }
@@ -109,8 +124,8 @@ export default function AdminUsersPage() {
     setMessage('');
     try {
       await apiRequest(`/admin/users/${id}/deactivate`, { method: 'POST' });
-      setMessage('User deactivated (record kept)');
-      if (editingId === id) cancelEdit();
+      setMessage('User deactivated. Record kept.');
+      if (editingId === id) closeModal();
       await loadUsers();
     } catch (err) {
       setError(err.message);
@@ -132,8 +147,115 @@ export default function AdminUsersPage() {
   return (
     <DashboardLayout title="Users">
       <div className="panel-section">
-        <h2>{editingId ? 'Edit user' : 'Create user'}</h2>
-        <form onSubmit={handleSubmit} className="form" style={{ marginTop: 0 }}>
+        <div className="toolbar">
+          <div className="toolbar-filters">
+            <label>
+              Filter by role
+              <select
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+              >
+                <option value="">All roles</option>
+                {ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Filter by status
+              <select
+                value={filterActive}
+                onChange={(e) => setFilterActive(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </label>
+          </div>
+          <button type="button" onClick={openCreate}>
+            Create user
+          </button>
+        </div>
+
+        {error && <p className="error">{error}</p>}
+        {message && <p className="success">{message}</p>}
+
+        {loading ? (
+          <p className="muted">Loading users...</p>
+        ) : users.length === 0 ? (
+          <p className="muted">No users found.</p>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.role}</td>
+                    <td>
+                      <span
+                        className={
+                          user.isActive ? 'badge active' : 'badge inactive'
+                        }
+                      >
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="form-actions">
+                        <button
+                          type="button"
+                          className="secondary"
+                          onClick={() => openEdit(user)}
+                        >
+                          Edit
+                        </button>
+                        {user.isActive ? (
+                          <button
+                            type="button"
+                            className="danger"
+                            onClick={() => handleDeactivate(user.id)}
+                          >
+                            Deactivate
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => handleReactivate(user.id)}
+                          >
+                            Reactivate
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={modalMode !== null}
+        title={modalMode === 'edit' ? 'Edit user' : 'Create user'}
+        onClose={closeModal}
+      >
+        <form onSubmit={handleSubmit} className="form">
           <div className="form-row two">
             <label>
               Full name
@@ -178,131 +300,33 @@ export default function AdminUsersPage() {
           </div>
           <label>
             Password
-            {editingId ? ' (leave blank to keep current)' : ' (min 8 characters)'}
+            {modalMode === 'edit'
+              ? ' (leave blank to keep current)'
+              : ' (min 8 characters)'}
             <input
               type="password"
               value={form.password}
               onChange={(e) => updateField('password', e.target.value)}
-              required={!editingId}
-              minLength={editingId ? undefined : 8}
+              required={modalMode === 'create'}
+              minLength={modalMode === 'create' ? 8 : undefined}
               autoComplete="new-password"
             />
           </label>
+          {formError && <p className="error">{formError}</p>}
           <div className="form-actions">
             <button type="submit" disabled={saving}>
               {saving
                 ? 'Saving...'
-                : editingId
+                : modalMode === 'edit'
                   ? 'Save changes'
                   : 'Create user'}
             </button>
-            {editingId && (
-              <button type="button" className="secondary" onClick={cancelEdit}>
-                Cancel
-              </button>
-            )}
+            <button type="button" className="secondary" onClick={closeModal}>
+              Cancel
+            </button>
           </div>
         </form>
-      </div>
-
-      <div className="panel-section">
-        <h2>All users</h2>
-        <div className="form-row two" style={{ marginBottom: '1rem' }}>
-          <label>
-            Filter by role
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-            >
-              <option value="">All roles</option>
-              {ROLES.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Filter by status
-            <select
-              value={filterActive}
-              onChange={(e) => setFilterActive(e.target.value)}
-            >
-              <option value="">All</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </label>
-        </div>
-
-        {error && <p className="error">{error}</p>}
-        {message && <p className="success">{message}</p>}
-        {loading ? (
-          <p className="muted">Loading users...</p>
-        ) : users.length === 0 ? (
-          <p className="muted">No users found.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                    <td>
-                      <span
-                        className={
-                          user.isActive ? 'badge active' : 'badge inactive'
-                        }
-                      >
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="form-actions">
-                        <button
-                          type="button"
-                          className="secondary"
-                          onClick={() => startEdit(user)}
-                        >
-                          Edit
-                        </button>
-                        {user.isActive ? (
-                          <button
-                            type="button"
-                            className="danger"
-                            onClick={() => handleDeactivate(user.id)}
-                          >
-                            Deactivate
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="secondary"
-                            onClick={() => handleReactivate(user.id)}
-                          >
-                            Reactivate
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      </Modal>
     </DashboardLayout>
   );
 }
