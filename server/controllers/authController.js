@@ -90,3 +90,42 @@ export async function logout(req, res) {
 export async function me(req, res) {
   res.json({ user: publicUser(req.user) });
 }
+
+export async function updateMe(req, res, next) {
+  try {
+    const user = req.user;
+    const { name, phone, password } = req.body;
+
+    if (name !== undefined) {
+      if (!String(name).trim()) {
+        return res.status(400).json({ message: 'Name cannot be empty' });
+      }
+      user.name = String(name).trim();
+    }
+
+    if (phone !== undefined) {
+      if (!String(phone).trim()) {
+        return res.status(400).json({ message: 'Phone cannot be empty' });
+      }
+      user.phone = String(phone).trim();
+    }
+
+    if (password) {
+      if (password.length < 8) {
+        return res
+          .status(400)
+          .json({ message: 'Password must be at least 8 characters' });
+      }
+      user.password = password;
+    }
+
+    await user.save();
+
+    res.json({
+      message: 'Profile updated',
+      user: publicUser(user),
+    });
+  } catch (err) {
+    next(err);
+  }
+}

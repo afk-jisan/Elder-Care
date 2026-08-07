@@ -23,10 +23,9 @@ export default function Modal({ open, title, onClose, children }) {
 
   return createPortal(
     <div className="modal-root" role="presentation">
-      <button
-        type="button"
+      <div
         className="modal-backdrop"
-        aria-label="Close dialog"
+        aria-hidden="true"
         onClick={onClose}
       />
       <div

@@ -7,6 +7,7 @@ import adminUserRoutes from './routes/adminUserRoutes.js';
 import familyRoutes from './routes/familyRoutes.js';
 import caregiverRoutes from './routes/caregiverRoutes.js';
 import doctorAvailabilityRoutes from './routes/doctorAvailabilityRoutes.js';
+import geoRoutes from './routes/geoRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/family', familyRoutes);
 app.use('/api/caregiver', caregiverRoutes);
 app.use('/api/doctor/availability', doctorAvailabilityRoutes);
+app.use('/api/geo', geoRoutes);
 app.use(errorHandler);
 
 async function start() {

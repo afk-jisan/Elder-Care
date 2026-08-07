@@ -15,6 +15,7 @@ import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import DoctorAvailabilityPage from './pages/dashboards/DoctorAvailabilityPage';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 function App() {
@@ -41,6 +42,15 @@ function App() {
                 </div>
               }
             />
+          </Route>
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={['admin', 'family', 'caregiver', 'doctor']}
+              />
+            }
+          >
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminDashboard />} />

@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
+import { UserCircleIcon } from '@hugeicons/core-free-icons';
 import { useAuth } from '../context/AuthContext';
 import { ROLE_NAV } from '../lib/navConfig';
 import { homePathForRole } from '../lib/rolePaths';
@@ -51,8 +52,19 @@ export default function DashboardLayout({ title, children }) {
             ))}
           </nav>
           <div className="sidebar-footer">
-            <span className="sidebar-profile-name">{user.name}</span>
-            <span className="sidebar-profile-role">{user.role}</span>
+            <Link to="/profile" className="sidebar-profile">
+              <span className="sidebar-profile-icon" aria-hidden="true">
+                <HugeiconsIcon
+                  icon={UserCircleIcon}
+                  size={22}
+                  strokeWidth={1.8}
+                />
+              </span>
+              <span className="sidebar-profile-text">
+                <span className="sidebar-profile-name">{user.name}</span>
+                <span className="sidebar-profile-role">{user.role}</span>
+              </span>
+            </Link>
           </div>
         </aside>
 
