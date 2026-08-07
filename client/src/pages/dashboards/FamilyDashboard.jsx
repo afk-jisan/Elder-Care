@@ -2,8 +2,11 @@ import DashboardLayout from '../../components/DashboardLayout';
 
 export default function FamilyDashboard() {
   return (
-    <DashboardLayout title="Family dashboard">
-      <p>Family features (FR-06 to FR-10) will be implemented here.</p>
+    <DashboardLayout title="Family overview">
+      <p>
+        Remote care management. Use Care plan (FR-06) to register an elder,
+        choose a package, and assign a caregiver.
+      </p>
     </DashboardLayout>
   );
 }

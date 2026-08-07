@@ -9,4 +9,3 @@ coverage/
 client/dist/
 server/node_modules/
 client/node_modules/
-docs/

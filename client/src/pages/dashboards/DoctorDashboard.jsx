@@ -2,8 +2,11 @@ import DashboardLayout from '../../components/DashboardLayout';
 
 export default function DoctorDashboard() {
   return (
-    <DashboardLayout title="Doctor dashboard">
-      <p>Doctor features (FR-11 to FR-15) will be implemented here.</p>
+    <DashboardLayout title="Doctor overview">
+      <p>
+        Remote consultations. Use Availability (FR-14) to set weekly windows
+        for session requests.
+      </p>
     </DashboardLayout>
   );
 }
