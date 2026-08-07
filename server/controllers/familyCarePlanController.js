@@ -1,6 +1,7 @@
 import { Elder } from '../models/Elder.js';
 import { CarePlan, CARE_PACKAGES } from '../models/CarePlan.js';
 import { User } from '../models/User.js';
+import { geocodeAddress } from '../utils/geocode.js';
 
 function elderDto(elder) {
   return {
@@ -63,21 +64,29 @@ export async function createElder(req, res, next) {
   try {
     const { name, address, dateOfBirth, latitude, longitude } = req.body;
 
-    if (
-      !name ||
-      !address ||
-      latitude === undefined ||
-      longitude === undefined
-    ) {
+    if (!name || !address) {
       return res.status(400).json({
-        message: 'Name, address, latitude, and longitude are required',
+        message: 'Name and address are required',
       });
     }
 
-    const lat = Number(latitude);
-    const lng = Number(longitude);
+    let lat =
+      latitude === undefined || latitude === '' ? NaN : Number(latitude);
+    let lng =
+      longitude === undefined || longitude === '' ? NaN : Number(longitude);
+
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      return res.status(400).json({ message: 'Invalid coordinates' });
+      try {
+        const geo = await geocodeAddress(address);
+        lat = geo.latitude;
+        lng = geo.longitude;
+      } catch (geoErr) {
+        return res.status(geoErr.status || 400).json({
+          message:
+            geoErr.message ||
+            'Could not find coordinates for that address. Try a clearer address.',
+        });
+      }
     }
 
     const elder = await Elder.create({
