@@ -14,7 +14,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/', (req, res) => {
   res.send('Elder Care API');
@@ -25,6 +25,11 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+import familyRoutes from './routes/familyRoutes.js';
+import geoRoutes from './routes/geoRoutes.js';
+
+app.use('/api/family', familyRoutes);
+app.use('/api/geo', geoRoutes);
 app.use(errorHandler);
 
 async function start() {
