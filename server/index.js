@@ -25,6 +25,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+import caregiverRoutes from './routes/caregiverRoutes.js';
+
+app.use('/api/caregiver', caregiverRoutes);
 app.use(errorHandler);
 
 async function start() {
