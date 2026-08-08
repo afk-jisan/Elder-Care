@@ -25,6 +25,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+import adminUserRoutes from './routes/adminUserRoutes.js';
+
+app.use('/api/admin/users', adminUserRoutes);
 app.use(errorHandler);
 
 async function start() {
