@@ -25,6 +25,9 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+import doctorAvailabilityRoutes from './routes/doctorAvailabilityRoutes.js';
+
+app.use('/api/doctor/availability', doctorAvailabilityRoutes);
 app.use(errorHandler);
 
 async function start() {
