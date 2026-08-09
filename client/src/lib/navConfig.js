@@ -5,6 +5,8 @@ import {
   Notebook01Icon,
   NewsIcon,
   FolderLibraryIcon,
+  Wallet01Icon,
+  Invoice01Icon,
   Location01Icon,
   TaskDaily01Icon,
   HealthIcon,
@@ -23,6 +25,8 @@ export const ROLE_NAV = {
     { to: '/family/care-plan', label: 'Care plan', icon: Notebook01Icon },
     { to: '/family/feed', label: 'Care feed', icon: NewsIcon },
     { to: '/family/vault', label: 'Vault', icon: FolderLibraryIcon },
+    { to: '/family/wallet', label: 'Wallet', icon: Wallet01Icon },
+    { to: '/family/utilities', label: 'Utilities', icon: Invoice01Icon },
   ],
   caregiver: [
     { to: '/caregiver', label: 'Overview', end: true, icon: Home01Icon },

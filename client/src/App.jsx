@@ -14,6 +14,8 @@ import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
 import FamilyCareFeedPage from './pages/dashboards/FamilyCareFeedPage';
 import FamilyVaultPage from './pages/dashboards/FamilyVaultPage';
+import FamilyWalletPage from './pages/dashboards/FamilyWalletPage';
+import FamilyUtilitiesPage from './pages/dashboards/FamilyUtilitiesPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
 import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
@@ -68,6 +70,8 @@ function App() {
             <Route path="/family/care-plan" element={<FamilyCarePlanPage />} />
             <Route path="/family/feed" element={<FamilyCareFeedPage />} />
             <Route path="/family/vault" element={<FamilyVaultPage />} />
+            <Route path="/family/wallet" element={<FamilyWalletPage />} />
+            <Route path="/family/utilities" element={<FamilyUtilitiesPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['caregiver']} />}>
             <Route path="/caregiver" element={<CaregiverDashboard />} />
