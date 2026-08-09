@@ -14,6 +14,7 @@ import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
+import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import DoctorAvailabilityPage from './pages/dashboards/DoctorAvailabilityPage';
 import ProfilePage from './pages/ProfilePage';
@@ -68,6 +69,7 @@ function App() {
               path="/caregiver/check-in"
               element={<CaregiverCheckInPage />}
             />
+            <Route path="/caregiver/tasks" element={<CaregiverTasksPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route path="/doctor" element={<DoctorDashboard />} />

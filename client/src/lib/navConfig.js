@@ -4,6 +4,7 @@ import {
   CheckListIcon,
   Notebook01Icon,
   Location01Icon,
+  TaskDaily01Icon,
   Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 
@@ -20,6 +21,7 @@ export const ROLE_NAV = {
   caregiver: [
     { to: '/caregiver', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/caregiver/check-in', label: 'Check-in', icon: Location01Icon },
+    { to: '/caregiver/tasks', label: 'Tasks', icon: TaskDaily01Icon },
   ],
   doctor: [
     { to: '/doctor', label: 'Overview', end: true, icon: Home01Icon },

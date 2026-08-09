@@ -10,6 +10,10 @@ import {
   listPendingAssignments,
   respondToCarePlan,
 } from '../controllers/familyCarePlanController.js';
+import {
+  listCaregiverTasks,
+  completeTask,
+} from '../controllers/caregiverTaskController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -23,5 +27,7 @@ router.get('/visits', listVisits);
 router.get('/visits/active', getActiveVisit);
 router.post('/check-in', checkIn);
 router.post('/check-out', checkOut);
+router.get('/tasks', listCaregiverTasks);
+router.post('/tasks/:id/complete', completeTask);
 
 export default router;

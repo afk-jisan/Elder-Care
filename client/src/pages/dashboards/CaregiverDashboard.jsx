@@ -46,7 +46,8 @@ export default function CaregiverDashboard() {
     <DashboardLayout title="Caregiver overview">
       <p>
         On-ground visits for assigned elders. Use Check-in for GPS check-in and
-        check-out with photo proof.
+        check-out with photo proof, then Tasks to complete scheduled work
+        (FR-05).
       </p>
 
       <div className="panel-section">

@@ -19,14 +19,24 @@ const emptyPlan = {
   caregiverId: '',
 };
 
+const emptyTask = {
+  carePlanId: '',
+  type: 'companion_visit',
+  title: '',
+  scheduledTime: '',
+  completionMethod: 'note',
+};
+
 export default function FamilyCarePlanPage() {
   const [elders, setElders] = useState([]);
   const [caregivers, setCaregivers] = useState([]);
   const [plans, setPlans] = useState([]);
   const [elderForm, setElderForm] = useState(emptyElder);
   const [planForm, setPlanForm] = useState(emptyPlan);
+  const [taskForm, setTaskForm] = useState(emptyTask);
   const [elderModalOpen, setElderModalOpen] = useState(false);
   const [planModalOpen, setPlanModalOpen] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [formError, setFormError] = useState('');
@@ -145,6 +155,33 @@ export default function FamilyCarePlanPage() {
     }
   }
 
+  async function submitTask(e) {
+    e.preventDefault();
+    setFormError('');
+    setSaving(true);
+    try {
+      await apiRequest('/family/tasks', {
+        method: 'POST',
+        body: JSON.stringify({
+          carePlanId: taskForm.carePlanId,
+          type: taskForm.type,
+          title: taskForm.title,
+          scheduledTime: new Date(taskForm.scheduledTime).toISOString(),
+          completionMethod: taskForm.completionMethod,
+        }),
+      });
+      setMessage('Task assigned to caregiver');
+      setTaskModalOpen(false);
+      setTaskForm(emptyTask);
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const activePlans = plans.filter((p) => p.status === 'active');
+
   return (
     <DashboardLayout title="Care plan">
       <div className="toolbar">
@@ -157,6 +194,22 @@ export default function FamilyCarePlanPage() {
           </button>
           <button type="button" onClick={() => setPlanModalOpen(true)}>
             Create care plan
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => {
+              setTaskForm({
+                ...emptyTask,
+                carePlanId: activePlans[0]?.id || '',
+                scheduledTime: new Date().toISOString().slice(0, 16),
+              });
+              setTaskModalOpen(true);
+              setFormError('');
+            }}
+            disabled={activePlans.length === 0}
+          >
+            Assign task
           </button>
         </div>
       </div>
@@ -379,6 +432,103 @@ export default function FamilyCarePlanPage() {
               type="button"
               className="secondary"
               onClick={() => setPlanModalOpen(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={taskModalOpen}
+        title="Assign task"
+        onClose={() => {
+          setTaskModalOpen(false);
+          setFormError('');
+        }}
+      >
+        <form className="form" onSubmit={submitTask}>
+          <label>
+            Active care plan
+            <select
+              value={taskForm.carePlanId}
+              onChange={(e) =>
+                setTaskForm((p) => ({ ...p, carePlanId: e.target.value }))
+              }
+              required
+            >
+              <option value="">Select plan</option>
+              {activePlans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.elder?.name || plan.elderId} ({plan.package})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Title
+            <input
+              value={taskForm.title}
+              onChange={(e) =>
+                setTaskForm((p) => ({ ...p, title: e.target.value }))
+              }
+              required
+            />
+          </label>
+          <div className="form-row two">
+            <label>
+              Type
+              <select
+                value={taskForm.type}
+                onChange={(e) =>
+                  setTaskForm((p) => ({ ...p, type: e.target.value }))
+                }
+              >
+                <option value="companion_visit">Companion visit</option>
+                <option value="medication_support">Medication support</option>
+                <option value="vitals_check">Vitals check</option>
+                <option value="errand">Errand</option>
+                <option value="hygiene_support">Hygiene support</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>
+              Completion method
+              <select
+                value={taskForm.completionMethod}
+                onChange={(e) =>
+                  setTaskForm((p) => ({
+                    ...p,
+                    completionMethod: e.target.value,
+                  }))
+                }
+              >
+                <option value="note">Note</option>
+                <option value="photo">Photo</option>
+                <option value="checklist">Checklist</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Scheduled time
+            <input
+              type="datetime-local"
+              value={taskForm.scheduledTime}
+              onChange={(e) =>
+                setTaskForm((p) => ({ ...p, scheduledTime: e.target.value }))
+              }
+              required
+            />
+          </label>
+          {formError && <p className="error">{formError}</p>}
+          <div className="form-actions">
+            <button type="submit" disabled={saving}>
+              {saving ? 'Saving...' : 'Assign task'}
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => setTaskModalOpen(false)}
             >
               Cancel
             </button>
