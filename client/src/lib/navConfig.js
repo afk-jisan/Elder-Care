@@ -1,6 +1,7 @@
 import {
   Home01Icon,
   UserGroupIcon,
+  CheckListIcon,
   Notebook01Icon,
   Location01Icon,
   Calendar03Icon,
@@ -10,6 +11,7 @@ export const ROLE_NAV = {
   admin: [
     { to: '/admin', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/admin/users', label: 'Users', icon: UserGroupIcon },
+    { to: '/admin/vetting', label: 'Vetting', icon: CheckListIcon },
   ],
   family: [
     { to: '/family', label: 'Overview', end: true, icon: Home01Icon },

@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import RoleHomeRedirect from './pages/RoleHomeRedirect';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminUsersPage from './pages/dashboards/AdminUsersPage';
+import AdminVettingPage from './pages/dashboards/AdminVettingPage';
 import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
@@ -55,6 +56,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/vetting" element={<AdminVettingPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['family']} />}>
             <Route path="/family" element={<FamilyDashboard />} />

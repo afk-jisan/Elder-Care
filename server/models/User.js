@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const ROLES = ['family', 'caregiver', 'doctor', 'admin'];
+const VERIFICATION_STATUSES = ['unverified', 'pending', 'verified'];
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,6 +18,11 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8, select: false },
     role: { type: String, enum: ROLES, required: true },
     isActive: { type: Boolean, default: true },
+    verificationStatus: {
+      type: String,
+      enum: VERIFICATION_STATUSES,
+      default: 'unverified',
+    },
   },
   { timestamps: true }
 );
@@ -38,4 +44,4 @@ userSchema.methods.toJSON = function toJSON() {
 };
 
 export const User = mongoose.model('User', userSchema);
-export { ROLES };
+export { ROLES, VERIFICATION_STATUSES };

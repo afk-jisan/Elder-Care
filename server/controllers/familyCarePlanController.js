@@ -1,7 +1,25 @@
 import { Elder } from '../models/Elder.js';
 import { CarePlan, CARE_PACKAGES } from '../models/CarePlan.js';
 import { User } from '../models/User.js';
+import { CaregiverVetting } from '../models/CaregiverVetting.js';
 import { geocodeAddress } from '../utils/geocode.js';
+
+async function findActivatedCaregiver(caregiverId) {
+  const caregiver = await User.findOne({
+    _id: caregiverId,
+    role: 'caregiver',
+    isActive: true,
+    verificationStatus: 'verified',
+  });
+  if (!caregiver) return null;
+
+  const vetting = await CaregiverVetting.findOne({
+    caregiverId: caregiver._id,
+    status: 'activated',
+  });
+  if (!vetting) return null;
+  return caregiver;
+}
 
 function elderDto(elder) {
   return {
@@ -106,9 +124,16 @@ export async function createElder(req, res, next) {
 
 export async function listCaregivers(req, res, next) {
   try {
+    const activated = await CaregiverVetting.find({
+      status: 'activated',
+    }).select('caregiverId');
+    const ids = activated.map((r) => r.caregiverId);
+
     const caregivers = await User.find({
+      _id: { $in: ids },
       role: 'caregiver',
       isActive: true,
+      verificationStatus: 'verified',
     }).sort({ name: 1 });
 
     res.json({
@@ -117,6 +142,7 @@ export async function listCaregivers(req, res, next) {
         name: c.name,
         email: c.email,
         phone: c.phone,
+        verificationStatus: c.verificationStatus,
       })),
     });
   } catch (err) {
@@ -163,13 +189,11 @@ export async function createCarePlan(req, res, next) {
     let caregiver = null;
 
     if (caregiverId) {
-      caregiver = await User.findOne({
-        _id: caregiverId,
-        role: 'caregiver',
-        isActive: true,
-      });
+      caregiver = await findActivatedCaregiver(caregiverId);
       if (!caregiver) {
-        return res.status(400).json({ message: 'Caregiver not available' });
+        return res.status(400).json({
+          message: 'Caregiver not available in the vetted pool',
+        });
       }
       status = 'pending_acceptance';
     }
@@ -210,13 +234,11 @@ export async function assignCaregiver(req, res, next) {
       return res.status(404).json({ message: 'Care plan not found' });
     }
 
-    const caregiver = await User.findOne({
-      _id: caregiverId,
-      role: 'caregiver',
-      isActive: true,
-    });
+    const caregiver = await findActivatedCaregiver(caregiverId);
     if (!caregiver) {
-      return res.status(400).json({ message: 'Caregiver not available' });
+      return res.status(400).json({
+        message: 'Caregiver not available in the vetted pool',
+      });
     }
 
     plan.caregiverId = caregiver._id;
