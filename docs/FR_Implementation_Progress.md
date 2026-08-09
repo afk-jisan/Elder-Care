@@ -26,7 +26,7 @@
 | FR-07 | Escrow wallet and payment release | Baktier | Pending | | |
 | FR-08 | Direct utility bill payment | Baktier | Pending | | |
 | FR-09 | Medical document vault | Baktier | Pending | | |
-| FR-10 | Real-time care status feed | Baktier | Done | pending-hash | `npm run test:fr10` |
+| FR-10 | Real-time care status feed | Baktier | Done | `0ae7cf3` | `npm run test:fr10` |
 | FR-11 | Join video consultation | Sadhman | Pending | | |
 | FR-12 | View uploaded prescriptions | Sadhman | Pending | | |
 | FR-13 | Post-session notes and digital Rx | Sadhman | Pending | | |
@@ -115,4 +115,4 @@
 - Commits on `integration` use local git identity for now; remote feature branches get owner authors at PAT handoff.
 - Sprint 2 forms under `docs/CSE470_Sprint2_*` may sit uncommitted separately from FR work.
 
-| 2026-08-09 | FR-10 implemented and tested |
+| 2026-08-09 | FR-10 implemented, tested, committed `0ae7cf3` |
