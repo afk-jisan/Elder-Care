@@ -13,7 +13,8 @@
     "test:geo": "node scripts/test-geo.js",
     "test:fr17": "node scripts/test-fr17.js",
     "test:fr05": "node scripts/test-fr05.js",
-    "test:fr04": "node scripts/test-fr04.js"
+    "test:fr04": "node scripts/test-fr04.js",
+    "test:fr10": "node scripts/test-fr10.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

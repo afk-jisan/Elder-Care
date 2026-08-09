@@ -26,7 +26,7 @@
 | FR-07 | Escrow wallet and payment release | Baktier | Pending | | |
 | FR-08 | Direct utility bill payment | Baktier | Pending | | |
 | FR-09 | Medical document vault | Baktier | Pending | | |
-| FR-10 | Real-time care status feed | Baktier | Pending | | |
+| FR-10 | Real-time care status feed | Baktier | Done | pending-hash | `npm run test:fr10` |
 | FR-11 | Join video consultation | Sadhman | Pending | | |
 | FR-12 | View uploaded prescriptions | Sadhman | Pending | | |
 | FR-13 | Post-session notes and digital Rx | Sadhman | Pending | | |
@@ -38,8 +38,8 @@
 | FR-19 | SOS alert and emergency cascade | Pranto | Pending | | |
 | FR-20 | Analytics and report dashboard | Pranto | Pending | | |
 
-**Done:** 7 / 20  
-**Next up:** FR-10 (care status feed), then FR-03 / FR-09, then escrow and video chain.
+**Done:** 8 / 20  
+**Next up:** FR-03 (prescription upload) and FR-09 (document vault).
 
 ## File map (implemented)
 
@@ -50,6 +50,12 @@
 - `server/utils/geo.js`
 - `client/src/pages/dashboards/CaregiverCheckInPage.jsx`
 - `server/scripts/test-fr01.js`
+
+### FR-10 Care feed
+- `server/controllers/careFeedController.js`
+- `server/routes/familyRoutes.js` (`GET /feed`)
+- `client/src/pages/dashboards/FamilyCareFeedPage.jsx`
+- `server/scripts/test-fr10.js`
 
 ### FR-04 Vitals
 - `server/models/VitalsLog.js`
@@ -108,3 +114,5 @@
 - External services (100ms, payment gateway, SMS, imgbb) are **mocked** for local runs.
 - Commits on `integration` use local git identity for now; remote feature branches get owner authors at PAT handoff.
 - Sprint 2 forms under `docs/CSE470_Sprint2_*` may sit uncommitted separately from FR work.
+
+| 2026-08-09 | FR-10 implemented and tested |

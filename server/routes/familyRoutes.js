@@ -12,6 +12,7 @@ import {
   listFamilyTasks,
 } from '../controllers/caregiverTaskController.js';
 import { listFamilyVitals } from '../controllers/vitalsController.js';
+import { getCareStatusFeed } from '../controllers/careFeedController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -27,5 +28,6 @@ router.post('/care-plans/:id/assign', assignCaregiver);
 router.get('/tasks', listFamilyTasks);
 router.post('/tasks', createFamilyTask);
 router.get('/vitals', listFamilyVitals);
+router.get('/feed', getCareStatusFeed);
 
 export default router;

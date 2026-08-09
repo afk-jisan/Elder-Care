@@ -3,6 +3,7 @@ import {
   UserGroupIcon,
   CheckListIcon,
   Notebook01Icon,
+  NewsIcon,
   Location01Icon,
   TaskDaily01Icon,
   HealthIcon,
@@ -18,6 +19,7 @@ export const ROLE_NAV = {
   family: [
     { to: '/family', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/family/care-plan', label: 'Care plan', icon: Notebook01Icon },
+    { to: '/family/feed', label: 'Care feed', icon: NewsIcon },
   ],
   caregiver: [
     { to: '/caregiver', label: 'Overview', end: true, icon: Home01Icon },

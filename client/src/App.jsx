@@ -12,6 +12,7 @@ import AdminUsersPage from './pages/dashboards/AdminUsersPage';
 import AdminVettingPage from './pages/dashboards/AdminVettingPage';
 import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
+import FamilyCareFeedPage from './pages/dashboards/FamilyCareFeedPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
 import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
@@ -63,6 +64,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['family']} />}>
             <Route path="/family" element={<FamilyDashboard />} />
             <Route path="/family/care-plan" element={<FamilyCarePlanPage />} />
+            <Route path="/family/feed" element={<FamilyCareFeedPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['caregiver']} />}>
             <Route path="/caregiver" element={<CaregiverDashboard />} />
