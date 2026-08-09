@@ -112,14 +112,14 @@ export async function listFamilyPrescriptions(req, res, next) {
 
 export async function listDoctorPrescriptions(req, res, next) {
   try {
-    const { elderId } = req.query;
-    if (!elderId) {
-      return res.status(400).json({ message: 'elderId is required' });
-    }
-    const docs = await Prescription.find({ elderId })
+    const filter = {};
+    if (req.query.elderId) filter.elderId = req.query.elderId;
+    const docs = await Prescription.find(filter)
       .populate('elderId', 'name')
       .populate('caregiverId', 'name')
-      .sort({ createdAt: -1 });
+      .populate('issuedByDoctorId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(100);
     res.json({ prescriptions: docs.map(prescriptionDto) });
   } catch (err) {
     next(err);

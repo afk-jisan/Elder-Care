@@ -10,19 +10,25 @@ import RoleHomeRedirect from './pages/RoleHomeRedirect';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminUsersPage from './pages/dashboards/AdminUsersPage';
 import AdminVettingPage from './pages/dashboards/AdminVettingPage';
+import AdminDisputesPage from './pages/dashboards/AdminDisputesPage';
+import AdminSosPage from './pages/dashboards/AdminSosPage';
+import AdminAnalyticsPage from './pages/dashboards/AdminAnalyticsPage';
 import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
 import FamilyCareFeedPage from './pages/dashboards/FamilyCareFeedPage';
 import FamilyVaultPage from './pages/dashboards/FamilyVaultPage';
 import FamilyWalletPage from './pages/dashboards/FamilyWalletPage';
 import FamilyUtilitiesPage from './pages/dashboards/FamilyUtilitiesPage';
+import FamilySessionsPage from './pages/dashboards/FamilySessionsPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
 import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
 import CaregiverVitalsPage from './pages/dashboards/CaregiverVitalsPage';
 import CaregiverPrescriptionsPage from './pages/dashboards/CaregiverPrescriptionsPage';
+import CaregiverVideoPage from './pages/dashboards/CaregiverVideoPage';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import DoctorAvailabilityPage from './pages/dashboards/DoctorAvailabilityPage';
+import DoctorSessionsPage from './pages/dashboards/DoctorSessionsPage';
 import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
@@ -64,6 +70,9 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/vetting" element={<AdminVettingPage />} />
+            <Route path="/admin/disputes" element={<AdminDisputesPage />} />
+            <Route path="/admin/sos" element={<AdminSosPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['family']} />}>
             <Route path="/family" element={<FamilyDashboard />} />
@@ -72,6 +81,7 @@ function App() {
             <Route path="/family/vault" element={<FamilyVaultPage />} />
             <Route path="/family/wallet" element={<FamilyWalletPage />} />
             <Route path="/family/utilities" element={<FamilyUtilitiesPage />} />
+            <Route path="/family/sessions" element={<FamilySessionsPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['caregiver']} />}>
             <Route path="/caregiver" element={<CaregiverDashboard />} />
@@ -85,6 +95,7 @@ function App() {
               path="/caregiver/prescriptions"
               element={<CaregiverPrescriptionsPage />}
             />
+            <Route path="/caregiver/video" element={<CaregiverVideoPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route path="/doctor" element={<DoctorDashboard />} />
@@ -92,6 +103,7 @@ function App() {
               path="/doctor/availability"
               element={<DoctorAvailabilityPage />}
             />
+            <Route path="/doctor/sessions" element={<DoctorSessionsPage />} />
           </Route>
           <Route path="*" element={<RoleHomeRedirect />} />
         </Routes>

@@ -18,7 +18,15 @@
     "test:fr03": "node scripts/test-fr03.js",
     "test:fr09": "node scripts/test-fr09.js",
     "test:fr07": "node scripts/test-fr07.js",
-    "test:fr08": "node scripts/test-fr08.js"
+    "test:fr08": "node scripts/test-fr08.js",
+    "test:fr02": "node scripts/test-fr02.js",
+    "test:fr11": "node scripts/test-fr02.js",
+    "test:fr12": "node scripts/test-fr12.js",
+    "test:fr13": "node scripts/test-fr12.js",
+    "test:fr15": "node scripts/test-fr12.js",
+    "test:fr18": "node scripts/test-fr18.js",
+    "test:fr19": "node scripts/test-fr18.js",
+    "test:fr20": "node scripts/test-fr18.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -11,6 +11,7 @@ export default function FamilyWalletPage() {
   const [caregiverId, setCaregiverId] = useState('');
   const [otp, setOtp] = useState('');
   const [pendingId, setPendingId] = useState('');
+  const [disputeEvidence, setDisputeEvidence] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -99,6 +100,25 @@ export default function FamilyWalletPage() {
     }
   }
 
+  async function openDispute(paymentId) {
+    setError('');
+    setMessage('');
+    try {
+      const data = await apiRequest('/family/disputes', {
+        method: 'POST',
+        body: JSON.stringify({
+          paymentId,
+          evidence: disputeEvidence || 'Service issue reported by family',
+        }),
+      });
+      setMessage(data.message || 'Dispute opened');
+      setDisputeEvidence('');
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <DashboardLayout title="Escrow wallet">
       <div className="panel-section">
@@ -160,6 +180,14 @@ export default function FamilyWalletPage() {
                 <button type="submit">Confirm pending OTP</button>
               </form>
             )}
+            <label>
+              Dispute evidence (FR-18)
+              <input
+                value={disputeEvidence}
+                onChange={(e) => setDisputeEvidence(e.target.value)}
+                placeholder="Describe the issue"
+              />
+            </label>
             <h2>Ledger</h2>
             {payments.length === 0 ? (
               <p className="muted">No payments yet.</p>
@@ -172,6 +200,7 @@ export default function FamilyWalletPage() {
                       <th>Amount</th>
                       <th>Status</th>
                       <th>When</th>
+                      <th />
                     </tr>
                   </thead>
                   <tbody>
@@ -181,6 +210,19 @@ export default function FamilyWalletPage() {
                         <td>{p.amount}</td>
                         <td>{p.status}</td>
                         <td>{new Date(p.createdAt).toLocaleString()}</td>
+                        <td>
+                          {p.status === 'completed' &&
+                            p.caregiverId &&
+                            (p.type === 'task_release' ||
+                              p.type === 'manual_release') && (
+                              <button
+                                type="button"
+                                onClick={() => openDispute(p.id)}
+                              >
+                                Dispute
+                              </button>
+                            )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

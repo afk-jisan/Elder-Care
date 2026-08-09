@@ -2,6 +2,7 @@ import { Elder } from '../models/Elder.js';
 import { Visit } from '../models/Visit.js';
 import { Task } from '../models/Task.js';
 import { VitalsLog } from '../models/VitalsLog.js';
+import { MedicalSession } from '../models/MedicalSession.js';
 import { CarePlan } from '../models/CarePlan.js';
 
 function startOfToday() {
@@ -18,7 +19,7 @@ export async function getCareStatusFeed(req, res, next) {
     const elderIds = elders.map((e) => e._id);
     const today = startOfToday();
 
-    const [visits, tasks, vitals, plans] = await Promise.all([
+    const [visits, tasks, vitals, plans, sessions] = await Promise.all([
       Visit.find({
         elderId: { $in: elderIds },
         $or: [
@@ -48,6 +49,13 @@ export async function getCareStatusFeed(req, res, next) {
         familyMemberId: req.auth.userId,
         status: 'active',
       }).populate('caregiverId', 'name'),
+      MedicalSession.find({
+        familyMemberId: req.auth.userId,
+      })
+        .populate('doctorId', 'name')
+        .populate('elderId', 'name')
+        .sort({ createdAt: -1 })
+        .limit(20),
     ]);
 
     const flags = vitals
@@ -106,7 +114,15 @@ export async function getCareStatusFeed(req, res, next) {
         caregiverName: t.caregiverId?.name,
         completedAt: t.completedAt,
       })),
-      medicalSessions: [],
+      medicalSessions: sessions.map((s) => ({
+        id: s._id.toString(),
+        status: s.status,
+        doctorName: s.doctorId?.name,
+        elderName: s.elderId?.name,
+        durationMinutes: s.durationMinutes,
+        startedAt: s.startedAt,
+        endedAt: s.endedAt,
+      })),
     };
 
     res.json({ feed, generatedAt: new Date() });

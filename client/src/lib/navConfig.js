@@ -12,6 +12,11 @@ import {
   HealthIcon,
   PrescriptionIcon,
   Calendar03Icon,
+  Video01Icon,
+  Alert01Icon,
+  AnalyticsUpIcon,
+  JusticeScale01Icon,
+  StethoscopeIcon,
 } from '@hugeicons/core-free-icons';
 
 export const ROLE_NAV = {
@@ -19,6 +24,9 @@ export const ROLE_NAV = {
     { to: '/admin', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/admin/users', label: 'Users', icon: UserGroupIcon },
     { to: '/admin/vetting', label: 'Vetting', icon: CheckListIcon },
+    { to: '/admin/disputes', label: 'Disputes', icon: JusticeScale01Icon },
+    { to: '/admin/sos', label: 'SOS', icon: Alert01Icon },
+    { to: '/admin/analytics', label: 'Analytics', icon: AnalyticsUpIcon },
   ],
   family: [
     { to: '/family', label: 'Overview', end: true, icon: Home01Icon },
@@ -27,6 +35,7 @@ export const ROLE_NAV = {
     { to: '/family/vault', label: 'Vault', icon: FolderLibraryIcon },
     { to: '/family/wallet', label: 'Wallet', icon: Wallet01Icon },
     { to: '/family/utilities', label: 'Utilities', icon: Invoice01Icon },
+    { to: '/family/sessions', label: 'Consults', icon: StethoscopeIcon },
   ],
   caregiver: [
     { to: '/caregiver', label: 'Overview', end: true, icon: Home01Icon },
@@ -38,9 +47,11 @@ export const ROLE_NAV = {
       label: 'Prescriptions',
       icon: PrescriptionIcon,
     },
+    { to: '/caregiver/video', label: 'Video', icon: Video01Icon },
   ],
   doctor: [
     { to: '/doctor', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/doctor/availability', label: 'Availability', icon: Calendar03Icon },
+    { to: '/doctor/sessions', label: 'Consults', icon: Video01Icon },
   ],
 };

@@ -31,6 +31,11 @@ import {
   createUtilityBill,
   payUtilityBill,
 } from '../controllers/utilityBillController.js';
+import {
+  rateDoctor,
+  listFamilySessions,
+} from '../controllers/sessionController.js';
+import { createDispute } from '../controllers/adminOpsController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -59,5 +64,8 @@ router.post('/wallet/payments/:id/confirm-otp', confirmReleaseOtp);
 router.get('/utilities', listUtilityBills);
 router.post('/utilities', createUtilityBill);
 router.post('/utilities/:id/pay', payUtilityBill);
+router.get('/sessions', listFamilySessions);
+router.post('/sessions/:id/rate', rateDoctor);
+router.post('/disputes', createDispute);
 
 export default router;
