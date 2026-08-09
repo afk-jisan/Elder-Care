@@ -4,9 +4,11 @@ import {
   CheckListIcon,
   Notebook01Icon,
   NewsIcon,
+  FolderLibraryIcon,
   Location01Icon,
   TaskDaily01Icon,
   HealthIcon,
+  PrescriptionIcon,
   Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 
@@ -20,12 +22,18 @@ export const ROLE_NAV = {
     { to: '/family', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/family/care-plan', label: 'Care plan', icon: Notebook01Icon },
     { to: '/family/feed', label: 'Care feed', icon: NewsIcon },
+    { to: '/family/vault', label: 'Vault', icon: FolderLibraryIcon },
   ],
   caregiver: [
     { to: '/caregiver', label: 'Overview', end: true, icon: Home01Icon },
     { to: '/caregiver/check-in', label: 'Check-in', icon: Location01Icon },
     { to: '/caregiver/tasks', label: 'Tasks', icon: TaskDaily01Icon },
     { to: '/caregiver/vitals', label: 'Vitals', icon: HealthIcon },
+    {
+      to: '/caregiver/prescriptions',
+      label: 'Prescriptions',
+      icon: PrescriptionIcon,
+    },
   ],
   doctor: [
     { to: '/doctor', label: 'Overview', end: true, icon: Home01Icon },

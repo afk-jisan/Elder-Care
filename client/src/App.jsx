@@ -13,10 +13,12 @@ import AdminVettingPage from './pages/dashboards/AdminVettingPage';
 import FamilyDashboard from './pages/dashboards/FamilyDashboard';
 import FamilyCarePlanPage from './pages/dashboards/FamilyCarePlanPage';
 import FamilyCareFeedPage from './pages/dashboards/FamilyCareFeedPage';
+import FamilyVaultPage from './pages/dashboards/FamilyVaultPage';
 import CaregiverDashboard from './pages/dashboards/CaregiverDashboard';
 import CaregiverCheckInPage from './pages/dashboards/CaregiverCheckInPage';
 import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
 import CaregiverVitalsPage from './pages/dashboards/CaregiverVitalsPage';
+import CaregiverPrescriptionsPage from './pages/dashboards/CaregiverPrescriptionsPage';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import DoctorAvailabilityPage from './pages/dashboards/DoctorAvailabilityPage';
 import ProfilePage from './pages/ProfilePage';
@@ -65,6 +67,7 @@ function App() {
             <Route path="/family" element={<FamilyDashboard />} />
             <Route path="/family/care-plan" element={<FamilyCarePlanPage />} />
             <Route path="/family/feed" element={<FamilyCareFeedPage />} />
+            <Route path="/family/vault" element={<FamilyVaultPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['caregiver']} />}>
             <Route path="/caregiver" element={<CaregiverDashboard />} />
@@ -74,6 +77,10 @@ function App() {
             />
             <Route path="/caregiver/tasks" element={<CaregiverTasksPage />} />
             <Route path="/caregiver/vitals" element={<CaregiverVitalsPage />} />
+            <Route
+              path="/caregiver/prescriptions"
+              element={<CaregiverPrescriptionsPage />}
+            />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route path="/doctor" element={<DoctorDashboard />} />

@@ -14,7 +14,9 @@
     "test:fr17": "node scripts/test-fr17.js",
     "test:fr05": "node scripts/test-fr05.js",
     "test:fr04": "node scripts/test-fr04.js",
-    "test:fr10": "node scripts/test-fr10.js"
+    "test:fr10": "node scripts/test-fr10.js",
+    "test:fr03": "node scripts/test-fr03.js",
+    "test:fr09": "node scripts/test-fr09.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
