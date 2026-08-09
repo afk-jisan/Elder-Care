@@ -18,7 +18,7 @@
 | FR | Title | Owner | Status | Commit | Test |
 |----|-------|-------|--------|--------|------|
 | FR-01 | GeoIP check-in / check-out | Muntasir | Done | Sprint 2 stack / remote rebuilt | `npm run test:fr01` |
-| FR-02 | Initiate medical video session | Muntasir | Done | (this batch) | `npm run test:fr02` |
+| FR-02 | Initiate medical video session | Muntasir | Done | `2f0fb08` | `npm run test:fr02` |
 | FR-03 | Upload prescription image | Muntasir | Done | `5810034` | `npm run test:fr03` |
 | FR-04 | Log vitals and behavioral notes | Muntasir | Done | `765e7a9` | `npm run test:fr04` |
 | FR-05 | View and complete assigned tasks | Muntasir | Done | `2fd1985` | `npm run test:fr05` |
@@ -27,16 +27,16 @@
 | FR-08 | Direct utility bill payment | Baktier | Done | `1252961` | `npm run test:fr08` |
 | FR-09 | Medical document vault | Baktier | Done | `5810034` | `npm run test:fr09` |
 | FR-10 | Real-time care status feed | Baktier | Done | `0ae7cf3` | `npm run test:fr10` |
-| FR-11 | Join video consultation | Sadhman | Done | (this batch) | `npm run test:fr11` |
-| FR-12 | View uploaded prescriptions | Sadhman | Done | (this batch) | `npm run test:fr12` |
-| FR-13 | Post-session notes and digital Rx | Sadhman | Done | (this batch) | `npm run test:fr13` |
+| FR-11 | Join video consultation | Sadhman | Done | `2f0fb08` | `npm run test:fr11` |
+| FR-12 | View uploaded prescriptions | Sadhman | Done | `2f0fb08` | `npm run test:fr12` |
+| FR-13 | Post-session notes and digital Rx | Sadhman | Done | `2f0fb08` | `npm run test:fr13` |
 | FR-14 | Manage availability schedule | Sadhman | Done | Sprint 2 stack | `npm run test:fr14` |
-| FR-15 | Doctor rating and review | Sadhman | Done | (this batch) | `npm run test:fr15` |
+| FR-15 | Doctor rating and review | Sadhman | Done | `2f0fb08` | `npm run test:fr15` |
 | FR-16 | User and role management | Pranto | Done | Sprint 2 stack | Manual + prior smoke |
 | FR-17 | Caregiver vetting pipeline | Pranto | Done | `19de0f5` | `npm run test:fr17` |
-| FR-18 | Escrow dispute resolution | Pranto | Done | (this batch) | `npm run test:fr18` |
-| FR-19 | SOS alert and emergency cascade | Pranto | Done | (this batch) | `npm run test:fr19` |
-| FR-20 | Analytics and report dashboard | Pranto | Done | (this batch) | `npm run test:fr20` |
+| FR-18 | Escrow dispute resolution | Pranto | Done | `2f0fb08` | `npm run test:fr18` |
+| FR-19 | SOS alert and emergency cascade | Pranto | Done | `2f0fb08` | `npm run test:fr19` |
+| FR-20 | Analytics and report dashboard | Pranto | Done | `2f0fb08` | `npm run test:fr20` |
 
 **Done:** 20 / 20  
 **Next up:** None. All FRs implemented on `integration`. Ready for PAT handoff / remote feature branches when approved.
@@ -198,7 +198,7 @@
 | 2026-08-09 | FR-02/11 video sessions smoke tests green |
 | 2026-08-09 | FR-12/13/15 doctor Rx, notes, rating smoke tests green |
 | 2026-08-09 | FR-18/19/20 disputes, SOS, analytics smoke tests green |
-| 2026-08-09 | **20/20 FRs complete** on local `integration` |
+| 2026-08-09 | **20/20 FRs complete** on local `integration` (`2f0fb08`) |
 
 ## Notes
 
