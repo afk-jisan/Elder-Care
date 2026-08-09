@@ -20,7 +20,7 @@
 | FR-01 | GeoIP check-in / check-out | Muntasir | Done | Sprint 2 stack / remote rebuilt | `npm run test:fr01` |
 | FR-02 | Initiate medical video session | Muntasir | Pending | | |
 | FR-03 | Upload prescription image | Muntasir | Pending | | |
-| FR-04 | Log vitals and behavioral notes | Muntasir | Done | (see loop log) | `npm run test:fr04` |
+| FR-04 | Log vitals and behavioral notes | Muntasir | Done | `765e7a9` | `npm run test:fr04` |
 | FR-05 | View and complete assigned tasks | Muntasir | Done | `2fd1985` | `npm run test:fr05` |
 | FR-06 | Care plan and caregiver assignment | Baktier | Done | Sprint 2 stack | `npm run test:fr06` |
 | FR-07 | Escrow wallet and payment release | Baktier | Pending | | |
@@ -101,7 +101,7 @@
 | 2026-08-09 | FR-17 implemented, tested, committed `19de0f5` |
 | 2026-08-09 | FR-05 implemented, tested, committed `2fd1985` |
 | 2026-08-09 | Created this tracker; continuing with FR-04 |
-| 2026-08-09 | FR-04 implemented and tested; commit pending in same loop |
+| 2026-08-09 | FR-04 implemented, tested, committed `765e7a9` |
 
 ## Notes
 
