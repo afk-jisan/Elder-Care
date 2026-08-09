@@ -23,8 +23,8 @@
 | FR-04 | Log vitals and behavioral notes | Muntasir | Done | `765e7a9` | `npm run test:fr04` |
 | FR-05 | View and complete assigned tasks | Muntasir | Done | `2fd1985` | `npm run test:fr05` |
 | FR-06 | Care plan and caregiver assignment | Baktier | Done | Sprint 2 stack | `npm run test:fr06` |
-| FR-07 | Escrow wallet and payment release | Baktier | Pending | | |
-| FR-08 | Direct utility bill payment | Baktier | Pending | | |
+| FR-07 | Escrow wallet and payment release | Baktier | Done |  |  |
+| FR-08 | Direct utility bill payment | Baktier | Done |  |  |
 | FR-09 | Medical document vault | Baktier | Done |  |  |
 | FR-10 | Real-time care status feed | Baktier | Done | `0ae7cf3` | `npm run test:fr10` |
 | FR-11 | Join video consultation | Sadhman | Pending | | |
@@ -38,8 +38,8 @@
 | FR-19 | SOS alert and emergency cascade | Pranto | Pending | | |
 | FR-20 | Analytics and report dashboard | Pranto | Pending | | |
 
-**Done:** 10 / 20  
-**Next up:** FR-07 escrow, FR-08 utilities, then video and remaining admin/doctor FRs.
+**Done:** 12 / 20  
+**Next up:** FR-02/FR-11 video sessions, then FR-12/13/15, then FR-18/19/20.
 
 ## File map (implemented)
 
@@ -131,3 +131,5 @@
 | 2026-08-09 | FR-10 implemented, tested, committed `0ae7cf3` |
 
 | 2026-08-09 | FR-03 and FR-09 implemented, tested, committed  |
+
+| 2026-08-09 | FR-07 and FR-08 implemented, tested, committed  |
