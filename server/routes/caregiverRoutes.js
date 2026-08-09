@@ -14,6 +14,10 @@ import {
   listCaregiverTasks,
   completeTask,
 } from '../controllers/caregiverTaskController.js';
+import {
+  createVitalsLog,
+  listCaregiverVitals,
+} from '../controllers/vitalsController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -29,5 +33,7 @@ router.post('/check-in', checkIn);
 router.post('/check-out', checkOut);
 router.get('/tasks', listCaregiverTasks);
 router.post('/tasks/:id/complete', completeTask);
+router.get('/vitals', listCaregiverVitals);
+router.post('/vitals', createVitalsLog);
 
 export default router;

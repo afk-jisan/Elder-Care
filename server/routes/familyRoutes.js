@@ -11,6 +11,7 @@ import {
   createFamilyTask,
   listFamilyTasks,
 } from '../controllers/caregiverTaskController.js';
+import { listFamilyVitals } from '../controllers/vitalsController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -25,5 +26,6 @@ router.post('/care-plans', createCarePlan);
 router.post('/care-plans/:id/assign', assignCaregiver);
 router.get('/tasks', listFamilyTasks);
 router.post('/tasks', createFamilyTask);
+router.get('/vitals', listFamilyVitals);
 
 export default router;
