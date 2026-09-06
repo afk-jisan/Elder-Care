@@ -1,0 +1,19 @@
+CSE470 Sprint Update Form S16
+
+Sprint Status: End
+
+Member 1
+ID: 23301302
+Goals/Achievement: Completed FR-07 escrow wallet and payment release. Family users can load wallet budget and release caregiver payments. Large releases require OTP confirmation before funds are sent.
+
+Member 2
+ID: 22201682
+Goals/Achievement: Completed FR-17 caregiver vetting for Admin. Admins can review caregiver documents and approve or reject applicants. Only vetted caregivers show up in the family assignment pool.
+
+Member 3
+ID: 22201800
+Goals/Achievement: Completed FR-02 medical video session initiate. Caregivers can request a consult with an available doctor. A session room is created and the doctor gets a short window to respond.
+
+Member 4
+ID: 21301734
+Goals/Achievement: Completed FR-11 join video consultation. Doctors can see incoming session requests on their dashboard. They can accept and join the live video room for the consult.

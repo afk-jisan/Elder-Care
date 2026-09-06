@@ -13,6 +13,7 @@ import adminOpsRoutes from './routes/adminOpsRoutes.js';
 import geoRoutes from './routes/geoRoutes.js';
 import vaultPublicRoutes from './routes/vaultPublicRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { UPLOADS_DIR } from './utils/imgbb.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -23,7 +24,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '8mb' }));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.get('/', (req, res) => {
   res.send('Elder Care API');

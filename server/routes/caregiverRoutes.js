@@ -27,8 +27,10 @@ import {
   initiateSession,
   listCaregiverSessions,
   endSession,
+  getSessionJoinToken,
 } from '../controllers/sessionController.js';
 import { triggerSos } from '../controllers/adminOpsController.js';
+import { listCaregiverPayments } from '../controllers/walletController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = Router();
@@ -51,7 +53,9 @@ router.post('/prescriptions', uploadPrescription);
 router.get('/doctors/available', listAvailableDoctors);
 router.get('/sessions', listCaregiverSessions);
 router.post('/sessions', initiateSession);
+router.get('/sessions/:id/token', getSessionJoinToken);
 router.post('/sessions/:id/end', endSession);
 router.post('/sos', triggerSos);
+router.get('/payments', listCaregiverPayments);
 
 export default router;

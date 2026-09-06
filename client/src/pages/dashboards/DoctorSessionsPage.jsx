@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Modal from '../../components/Modal';
 import { apiRequest } from '../../api/client';
+import { isLiveVideoRoom, videoRoomLabel } from '../../lib/videoSession';
+
+const HmsVideoPanel = lazy(() => import('../../components/HmsVideoPanel'));
 
 const emptyNotes = {
   notes: '',
@@ -12,6 +15,15 @@ const emptyNotes = {
   frequency: '',
   duration: '',
 };
+
+function VideoBadge({ roomId }) {
+  const live = isLiveVideoRoom(roomId);
+  return (
+    <span className={`video-badge ${live ? 'live' : 'unavailable'}`}>
+      {videoRoomLabel(roomId)}
+    </span>
+  );
+}
 
 export default function DoctorSessionsPage() {
   const [sessions, setSessions] = useState([]);
@@ -25,10 +37,13 @@ export default function DoctorSessionsPage() {
   const [notesForm, setNotesForm] = useState(emptyNotes);
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [joinId, setJoinId] = useState('');
 
-  async function load() {
-    setLoading(true);
-    setError('');
+  async function load({ silent = false } = {}) {
+    if (!silent) {
+      setLoading(true);
+      setError('');
+    }
     try {
       const [s, p, r] = await Promise.all([
         apiRequest('/doctor/sessions'),
@@ -39,15 +54,15 @@ export default function DoctorSessionsPage() {
       setPrescriptions(p.prescriptions || []);
       setRating(r);
     } catch (err) {
-      setError(err.message);
+      if (!silent) setError(err.message);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 5000);
+    const t = setInterval(() => load({ silent: true }), 5000);
     return () => clearInterval(t);
   }, []);
 
@@ -60,7 +75,7 @@ export default function DoctorSessionsPage() {
         body: JSON.stringify({ decision }),
       });
       setMessage(data.message);
-      await load();
+      await load({ silent: true });
     } catch (err) {
       setError(err.message);
     }
@@ -71,7 +86,8 @@ export default function DoctorSessionsPage() {
     try {
       await apiRequest(`/doctor/sessions/${id}/end`, { method: 'POST' });
       setMessage('Session ended');
-      await load();
+      setJoinId('');
+      await load({ silent: true });
     } catch (err) {
       setError(err.message);
     }
@@ -102,7 +118,7 @@ export default function DoctorSessionsPage() {
       setMessage(data.message || 'Notes saved');
       setNotesOpen(false);
       setNotesForm(emptyNotes);
-      await load();
+      await load({ silent: true });
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -110,13 +126,14 @@ export default function DoctorSessionsPage() {
     }
   }
 
+  const joinSession = joinId ? sessions.find((s) => s.id === joinId) : null;
+
   return (
     <DashboardLayout title="Consultations">
       <div className="panel-section">
         <p className="muted">
-          Accept video requests within 60 seconds (FR-11), review prescriptions
-          (FR-12), write post-session notes and digital Rx (FR-13). Family
-          ratings average: {rating.average} ({rating.count}).
+          Accept video consultation requests, review prescriptions, and write post-session notes.
+          Family ratings average: {rating.average} ({rating.count}).
         </p>
         {error && <p className="error">{error}</p>}
         {message && <p className="success">{message}</p>}
@@ -134,9 +151,11 @@ export default function DoctorSessionsPage() {
                     <tr>
                       <th>Elder</th>
                       <th>Caregiver</th>
-                      <th>Status</th>
-                      <th>Room</th>
-                      <th>Actions</th>
+                      <th className="col-status">Status</th>
+                      <th className="col-video">Video</th>
+                      <th>Rating</th>
+                      <th>Review</th>
+                      <th className="col-actions">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -145,50 +164,82 @@ export default function DoctorSessionsPage() {
                         <td>{s.elder?.name || s.elderId}</td>
                         <td>{s.caregiver?.name || s.caregiverId}</td>
                         <td>{s.status}</td>
-                        <td>{s.roomId || '—'}</td>
-                        <td className="toolbar">
-                          {s.status === 'requested' && (
-                            <>
+                        <td>
+                          <VideoBadge roomId={s.roomId} />
+                        </td>
+                        <td>
+                          {s.rating ? (
+                            <span className="rating-stars">
+                              {'★'.repeat(s.rating.score)}
+                              {'☆'.repeat(5 - s.rating.score)}
+                              <span className="rating-score">{s.rating.score}/5</span>
+                            </span>
+                          ) : (
+                            <span className="muted">—</span>
+                          )}
+                        </td>
+                        <td className="review-cell">
+                          {s.rating?.review || '—'}
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            {s.status === 'requested' && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => respond(s.id, 'accept')}
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => respond(s.id, 'decline')}
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                            {s.status === 'active' && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setJoinId(s.id)}
+                                  disabled={!isLiveVideoRoom(s.roomId)}
+                                  title={
+                                    isLiveVideoRoom(s.roomId)
+                                      ? 'Join the live 100ms call'
+                                      : 'This session cannot join video. Request a new consult.'
+                                  }
+                                >
+                                  Join video
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => endSession(s.id)}
+                                >
+                                  End
+                                </button>
+                              </>
+                            )}
+                            {s.status === 'ended' && (
                               <button
                                 type="button"
-                                onClick={() => respond(s.id, 'accept')}
+                                onClick={() => {
+                                  setNotesSessionId(s.id);
+                                  setNotesForm({
+                                    ...emptyNotes,
+                                    notes: s.notes || '',
+                                    diagnosis: s.diagnosis || '',
+                                    followUp: s.followUp || '',
+                                  });
+                                  setFormError('');
+                                  setNotesOpen(true);
+                                }}
                               >
-                                Accept
+                                Notes / Rx
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => respond(s.id, 'decline')}
-                              >
-                                Decline
-                              </button>
-                            </>
-                          )}
-                          {s.status === 'active' && (
-                            <button
-                              type="button"
-                              onClick={() => endSession(s.id)}
-                            >
-                              End & join done
-                            </button>
-                          )}
-                          {s.status === 'ended' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setNotesSessionId(s.id);
-                                setNotesForm({
-                                  ...emptyNotes,
-                                  notes: s.notes || '',
-                                  diagnosis: s.diagnosis || '',
-                                  followUp: s.followUp || '',
-                                });
-                                setFormError('');
-                                setNotesOpen(true);
-                              }}
-                            >
-                              Notes / Rx
-                            </button>
-                          )}
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -197,7 +248,7 @@ export default function DoctorSessionsPage() {
               </div>
             )}
 
-            <h2>Prescriptions (FR-12)</h2>
+            <h2>Prescriptions</h2>
             {prescriptions.length === 0 ? (
               <p className="muted">No prescriptions uploaded yet.</p>
             ) : (
@@ -231,6 +282,27 @@ export default function DoctorSessionsPage() {
           </>
         )}
       </div>
+
+      <Modal
+        open={Boolean(joinId && joinSession)}
+        onClose={() => setJoinId('')}
+        title="Live video consult"
+        className="modal-wide modal-video"
+      >
+        {joinSession && (
+          <Suspense fallback={<p className="muted">Loading video module...</p>}>
+            <HmsVideoPanel
+              sessionId={joinId}
+              roomId={joinSession.roomId}
+              rolePath="doctor"
+              elderName={joinSession.elder?.name}
+              caregiverName={joinSession.caregiver?.name}
+              doctorName={joinSession.doctor?.name}
+              onClose={() => setJoinId('')}
+            />
+          </Suspense>
+        )}
+      </Modal>
 
       <Modal
         open={notesOpen}

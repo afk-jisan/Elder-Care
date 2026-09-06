@@ -80,7 +80,7 @@ export default function CaregiverVitalsPage() {
         <div className="toolbar">
           <p className="muted" style={{ margin: 0 }}>
             Log blood pressure, blood sugar, weight, and optional notes after a
-            visit (FR-04). Decline keywords are flagged for family review.
+            visit. Decline keywords are flagged for family review.
           </p>
           <button
             type="button"

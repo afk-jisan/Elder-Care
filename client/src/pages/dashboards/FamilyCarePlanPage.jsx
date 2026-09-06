@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import Modal from '../../components/Modal';
+import ElderLocationPicker from '../../components/ElderLocationPicker';
 import { apiRequest } from '../../api/client';
 
 const PACKAGES = ['Companion', 'Medical', 'Errand'];
@@ -42,8 +43,6 @@ export default function FamilyCarePlanPage() {
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [lookingUp, setLookingUp] = useState(false);
-  const [resolvedLocation, setResolvedLocation] = useState('');
 
   async function loadAll() {
     setError('');
@@ -68,29 +67,6 @@ export default function FamilyCarePlanPage() {
     loadAll();
   }, []);
 
-  async function lookupAddress() {
-    setFormError('');
-    setLookingUp(true);
-    try {
-      const data = await apiRequest('/geo/lookup', {
-        method: 'POST',
-        body: JSON.stringify({ address: elderForm.address }),
-      });
-      setElderForm((prev) => ({
-        ...prev,
-        latitude: String(data.latitude),
-        longitude: String(data.longitude),
-      }));
-      setResolvedLocation(data.displayName || elderForm.address);
-    } catch (err) {
-      setFormError(err.message);
-      setResolvedLocation('');
-      setElderForm((prev) => ({ ...prev, latitude: '', longitude: '' }));
-    } finally {
-      setLookingUp(false);
-    }
-  }
-
   async function submitElder(e) {
     e.preventDefault();
     setFormError('');
@@ -100,13 +76,9 @@ export default function FamilyCarePlanPage() {
       let longitude = elderForm.longitude;
 
       if (!latitude || !longitude) {
-        const data = await apiRequest('/geo/lookup', {
-          method: 'POST',
-          body: JSON.stringify({ address: elderForm.address }),
-        });
-        latitude = data.latitude;
-        longitude = data.longitude;
-        setResolvedLocation(data.displayName || elderForm.address);
+        setFormError('Mark the home on the map before saving.');
+        setSaving(false);
+        return;
       }
 
       await apiRequest('/family/elders', {
@@ -122,7 +94,6 @@ export default function FamilyCarePlanPage() {
       setMessage('Elder registered');
       setElderModalOpen(false);
       setElderForm(emptyElder);
-      setResolvedLocation('');
       await loadAll();
     } catch (err) {
       setFormError(err.message);
@@ -288,10 +259,10 @@ export default function FamilyCarePlanPage() {
       <Modal
         open={elderModalOpen}
         title="Add elder"
+        className="modal-wide"
         onClose={() => {
           setElderModalOpen(false);
           setFormError('');
-          setResolvedLocation('');
           setElderForm(emptyElder);
         }}
       >
@@ -307,40 +278,6 @@ export default function FamilyCarePlanPage() {
             />
           </label>
           <label>
-            Address / location
-            <input
-              value={elderForm.address}
-              onChange={(e) => {
-                setElderForm((p) => ({
-                  ...p,
-                  address: e.target.value,
-                  latitude: '',
-                  longitude: '',
-                }));
-                setResolvedLocation('');
-              }}
-              required
-              placeholder="House, road, area, city"
-            />
-          </label>
-          <div className="form-actions">
-            <button
-              type="button"
-              className="secondary"
-              onClick={lookupAddress}
-              disabled={lookingUp || !elderForm.address.trim()}
-            >
-              {lookingUp ? 'Looking up...' : 'Find coordinates'}
-            </button>
-          </div>
-          {resolvedLocation && (
-            <p className="muted">
-              Matched: {resolvedLocation}
-              <br />
-              Lat {elderForm.latitude}, Lng {elderForm.longitude}
-            </p>
-          )}
-          <label>
             Date of birth
             <input
               type="date"
@@ -350,6 +287,20 @@ export default function FamilyCarePlanPage() {
               }
             />
           </label>
+
+          <ElderLocationPicker
+            address={elderForm.address}
+            onAddressChange={(address) =>
+              setElderForm((prev) => ({ ...prev, address }))
+            }
+            latitude={elderForm.latitude}
+            longitude={elderForm.longitude}
+            onChange={({ latitude, longitude }) =>
+              setElderForm((prev) => ({ ...prev, latitude, longitude }))
+            }
+            onError={setFormError}
+          />
+
           {formError && <p className="error">{formError}</p>}
           <div className="form-actions">
             <button type="submit" disabled={saving}>
@@ -358,7 +309,11 @@ export default function FamilyCarePlanPage() {
             <button
               type="button"
               className="secondary"
-              onClick={() => setElderModalOpen(false)}
+              onClick={() => {
+                setElderModalOpen(false);
+                setFormError('');
+                setElderForm(emptyElder);
+              }}
             >
               Cancel
             </button>

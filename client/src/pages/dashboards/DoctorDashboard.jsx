@@ -4,8 +4,8 @@ export default function DoctorDashboard() {
   return (
     <DashboardLayout title="Doctor overview">
       <p>
-        Remote consultations. Use Availability (FR-14) to set weekly windows
-        for session requests.
+        Remote consultations. Use Availability to set weekly windows for
+        session requests.
       </p>
     </DashboardLayout>
   );

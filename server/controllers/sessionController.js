@@ -4,6 +4,14 @@ import { CarePlan } from '../models/CarePlan.js';
 import { User } from '../models/User.js';
 import { Prescription } from '../models/Prescription.js';
 import { Rating } from '../models/Rating.js';
+import {
+  createHmsRoom,
+  createClientAuthToken,
+  doctorRole,
+  caregiverRole,
+  hasHmsConfig,
+} from '../utils/hms.js';
+import { uploadToImgbb, hasImageUploadConfig } from '../utils/imgbb.js';
 
 const ACCEPT_WINDOW_MS = 60 * 1000;
 
@@ -26,6 +34,7 @@ function sessionDto(s) {
       : undefined,
     status: s.status,
     roomId: s.roomId,
+    roomName: s.roomName || '',
     requestedAt: s.requestedAt,
     respondBy: s.respondBy,
     respondedAt: s.respondedAt,
@@ -66,6 +75,25 @@ async function expireTimedOut(session) {
     await session.save();
   }
   return session;
+}
+
+async function sessionsWithRatings(sessions) {
+  const ratings = await Rating.find({
+    sessionId: { $in: sessions.map((s) => s._id) },
+  });
+  const bySession = new Map(
+    ratings.map((r) => [r.sessionId.toString(), r])
+  );
+  return sessions.map((s) => {
+    const rating = bySession.get(s._id.toString());
+    return {
+      ...sessionDto(s),
+      rated: Boolean(rating),
+      rating: rating
+        ? { score: rating.score, review: rating.review || '' }
+        : null,
+    };
+  });
 }
 
 export async function listAvailableDoctors(req, res, next) {
@@ -118,6 +146,17 @@ export async function initiateSession(req, res, next) {
     }
 
     const requestedAt = new Date();
+    let roomId = `mock-100ms-${Date.now()}`;
+    let roomName = '';
+    if (hasHmsConfig()) {
+      const room = await createHmsRoom({
+        name: `eldercare-${elderId.slice(-6)}-${Date.now()}`,
+        description: `Consult elder ${elderId}`,
+      });
+      roomId = room.id;
+      roomName = room.name || '';
+    }
+
     const session = await MedicalSession.create({
       elderId,
       caregiverId: req.auth.userId,
@@ -126,7 +165,8 @@ export async function initiateSession(req, res, next) {
       status: 'requested',
       requestedAt,
       respondBy: new Date(requestedAt.getTime() + ACCEPT_WINDOW_MS),
-      roomId: `mock-100ms-${Date.now()}`,
+      roomId,
+      roomName,
     });
 
     const populated = await MedicalSession.findById(session._id)
@@ -135,7 +175,7 @@ export async function initiateSession(req, res, next) {
       .populate('doctorId', 'name');
 
     res.status(201).json({
-      message: 'Session requested. Doctor has 60 seconds to respond (mock push).',
+      message: 'Session requested. The doctor has been notified.',
       session: sessionDto(populated),
     });
   } catch (err) {
@@ -163,7 +203,7 @@ export async function listDoctorSessions(req, res, next) {
       .populate('caregiverId', 'name')
       .sort({ createdAt: -1 });
     for (const s of sessions) await expireTimedOut(s);
-    res.json({ sessions: sessions.map(sessionDto) });
+    res.json({ sessions: await sessionsWithRatings(sessions) });
   } catch (err) {
     next(err);
   }
@@ -179,16 +219,7 @@ export async function listFamilySessions(req, res, next) {
       .populate('caregiverId', 'name')
       .sort({ createdAt: -1 });
     for (const s of sessions) await expireTimedOut(s);
-    const ratings = await Rating.find({
-      sessionId: { $in: sessions.map((s) => s._id) },
-    });
-    const rated = new Set(ratings.map((r) => r.sessionId.toString()));
-    res.json({
-      sessions: sessions.map((s) => ({
-        ...sessionDto(s),
-        rated: rated.has(s._id.toString()),
-      })),
-    });
+    res.json({ sessions: await sessionsWithRatings(sessions) });
   } catch (err) {
     next(err);
   }
@@ -231,8 +262,55 @@ export async function respondToSession(req, res, next) {
       .populate('doctorId', 'name');
 
     res.json({
-      message: decision === 'accept' ? 'Joined mock 100ms room' : 'Session declined',
+      message: decision === 'accept' ? 'Session accepted' : 'Session declined',
       session: sessionDto(populated),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSessionJoinToken(req, res, next) {
+  try {
+    if (!hasHmsConfig()) {
+      return res.status(503).json({
+        message: '100ms is not configured on this server',
+      });
+    }
+
+    const session = await MedicalSession.findById(req.params.id);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    const uid = req.auth.userId;
+    const isDoctor = session.doctorId.toString() === uid;
+    const isCaregiver = session.caregiverId.toString() === uid;
+    if (!isDoctor && !isCaregiver) {
+      return res.status(403).json({ message: 'Not a participant of this session' });
+    }
+    if (session.status !== 'active') {
+      return res.status(400).json({
+        message: 'Session must be active before joining video',
+      });
+    }
+    if (!session.roomId || String(session.roomId).startsWith('mock-100ms-')) {
+      return res.status(400).json({ message: 'No live 100ms room for this session' });
+    }
+
+    const role = isDoctor ? doctorRole() : caregiverRole();
+    const authToken = createClientAuthToken({
+      roomId: session.roomId,
+      userId: uid,
+      role,
+    });
+
+    res.json({
+      authToken,
+      roomId: session.roomId,
+      roomName: session.roomName || '',
+      role,
+      userId: uid,
     });
   } catch (err) {
     next(err);
@@ -295,12 +373,22 @@ export async function writeSessionNotes(req, res, next) {
 
     let rx = null;
     if (prescription?.medicineName) {
+      let imageUrl = prescription.imageUrl || '';
+      if (prescription.imageBase64 && hasImageUploadConfig()) {
+        const uploaded = await uploadToImgbb(prescription.imageBase64, {
+          name: `rx-${session._id}`,
+        });
+        imageUrl = uploaded.url;
+      }
+      if (!imageUrl) {
+        imageUrl = 'https://example.local/digital-rx.txt';
+      }
       rx = await Prescription.create({
         elderId: session.elderId,
         caregiverId: session.caregiverId,
         issuedByDoctorId: req.auth.userId,
         sessionId: session._id,
-        imageUrl: prescription.imageUrl || 'https://example.local/digital-rx.txt',
+        imageUrl,
         medicineName: prescription.medicineName,
         dosage: prescription.dosage || '',
         frequency: prescription.frequency || '',

@@ -40,6 +40,7 @@ const medicalSessionSchema = new mongoose.Schema(
       index: true,
     },
     roomId: { type: String, default: '' },
+    roomName: { type: String, default: '' },
     requestedAt: { type: Date, default: Date.now },
     respondBy: { type: Date },
     respondedAt: { type: Date },

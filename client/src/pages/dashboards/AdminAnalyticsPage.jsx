@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { apiRequest } from '../../api/client';
+import { getToken } from '../../lib/authStorage';
 
 export default function AdminAnalyticsPage() {
   const [report, setReport] = useState(null);
@@ -27,7 +28,7 @@ export default function AdminAnalyticsPage() {
   async function downloadCsv() {
     setError('');
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${base}/admin/analytics?format=csv`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -50,8 +51,8 @@ export default function AdminAnalyticsPage() {
     <DashboardLayout title="Analytics">
       <div className="panel-section">
         <p className="muted">
-          Platform metrics for elders, tasks, escrow, and video sessions
-          (FR-20). Export CSV for reporting.
+          Platform metrics for elders, tasks, escrow, and video sessions.
+          Export CSV for reporting.
         </p>
         {error && <p className="error">{error}</p>}
         <div className="toolbar">

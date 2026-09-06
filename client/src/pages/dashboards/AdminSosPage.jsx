@@ -2,12 +2,23 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { apiRequest } from '../../api/client';
 
+function statusBadge(status) {
+  const map = {
+    resolved: { label: 'Resolved', cls: 'badge active' },
+    escalated: { label: 'Escalated', cls: 'badge inactive' },
+    family_notified: { label: 'Family Notified', cls: 'badge' },
+    triggered: { label: 'Triggered', cls: 'badge' },
+  };
+  const s = map[status] || { label: status, cls: 'badge' };
+  return <span className={s.cls}>{s.label}</span>;
+}
+
 export default function AdminSosPage() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [note, setNote] = useState('');
+  const [notes, setNotes] = useState({});
 
   async function load() {
     setLoading(true);
@@ -31,9 +42,7 @@ export default function AdminSosPage() {
   async function escalate(id) {
     setError('');
     try {
-      const data = await apiRequest(`/admin/sos/${id}/escalate`, {
-        method: 'POST',
-      });
+      const data = await apiRequest(`/admin/sos/${id}/escalate`, { method: 'POST' });
       setMessage(data.message);
       await load();
     } catch (err) {
@@ -46,10 +55,10 @@ export default function AdminSosPage() {
     try {
       const data = await apiRequest(`/admin/sos/${id}/resolve`, {
         method: 'POST',
-        body: JSON.stringify({ resolutionNote: note || 'Resolved by admin' }),
+        body: JSON.stringify({ resolutionNote: notes[id] || 'Resolved by admin' }),
       });
       setMessage(data.message);
-      setNote('');
+      setNotes((prev) => ({ ...prev, [id]: '' }));
       await load();
     } catch (err) {
       setError(err.message);
@@ -60,15 +69,11 @@ export default function AdminSosPage() {
     <DashboardLayout title="SOS alerts">
       <div className="panel-section">
         <p className="muted">
-          Monitor caregiver SOS events. Family is notified first; escalate if
-          unresolved, then resolve (FR-19).
+          Monitor caregiver SOS events. Family is notified first; escalate if unresolved, then resolve.
         </p>
         {error && <p className="error">{error}</p>}
         {message && <p className="success">{message}</p>}
-        <label>
-          Resolution note
-          <input value={note} onChange={(e) => setNote(e.target.value)} />
-        </label>
+
         {loading ? (
           <p className="muted">Loading...</p>
         ) : events.length === 0 ? (
@@ -83,6 +88,7 @@ export default function AdminSosPage() {
                   <th>Status</th>
                   <th>GPS</th>
                   <th>When</th>
+                  <th>Resolution Note</th>
                   <th />
                 </tr>
               </thead>
@@ -91,16 +97,24 @@ export default function AdminSosPage() {
                   <tr key={e.id}>
                     <td>{e.elder}</td>
                     <td>{e.caregiver}</td>
-                    <td>{e.status}</td>
+                    <td>{statusBadge(e.status)}</td>
                     <td>
-                      {e.latitude != null
-                        ? `${e.latitude}, ${e.longitude}`
-                        : '—'}
+                      {e.latitude != null ? `${e.latitude}, ${e.longitude}` : '—'}
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      {e.createdAt ? new Date(e.createdAt).toLocaleString() : '—'}
                     </td>
                     <td>
-                      {e.createdAt
-                        ? new Date(e.createdAt).toLocaleString()
-                        : '—'}
+                      {e.status !== 'resolved' && (
+                        <input
+                          value={notes[e.id] || ''}
+                          onChange={(ev) =>
+                            setNotes((prev) => ({ ...prev, [e.id]: ev.target.value }))
+                          }
+                          placeholder="Add note…"
+                          style={{ minWidth: 160 }}
+                        />
+                      )}
                     </td>
                     <td className="toolbar">
                       {e.status !== 'resolved' && e.status !== 'escalated' && (

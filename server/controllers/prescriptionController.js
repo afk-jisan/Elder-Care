@@ -1,6 +1,7 @@
 import { Prescription } from '../models/Prescription.js';
 import { CarePlan } from '../models/CarePlan.js';
 import { MedicalDocument } from '../models/MedicalDocument.js';
+import { uploadToImgbb, hasImageUploadConfig } from '../utils/imgbb.js';
 
 function prescriptionDto(doc) {
   return {
@@ -30,10 +31,11 @@ function prescriptionDto(doc) {
 
 export async function uploadPrescription(req, res, next) {
   try {
-    const { elderId, imageUrl, caption } = req.body;
-    if (!elderId || !imageUrl) {
+    const { elderId, imageUrl, imageBase64, caption, medicineName, dosage } =
+      req.body;
+    if (!elderId || (!imageUrl && !imageBase64)) {
       return res.status(400).json({
-        message: 'Elder and image URL are required',
+        message: 'Elder and image (file/base64 or URL) are required',
       });
     }
 
@@ -48,12 +50,31 @@ export async function uploadPrescription(req, res, next) {
       });
     }
 
-    // Mock imgbb: accept any URL or data URL string from the client.
+    let finalUrl = imageUrl ? String(imageUrl).trim() : '';
+    if (imageBase64) {
+      if (!hasImageUploadConfig()) {
+        return res.status(503).json({
+          message: 'Image upload is not configured',
+        });
+      }
+      const uploaded = await uploadToImgbb(imageBase64, {
+        name: `rx-${elderId}-${Date.now()}`,
+      });
+      finalUrl = uploaded.url;
+    }
+    if (!finalUrl) {
+      return res.status(400).json({
+        message: 'Elder and image (file/base64 or URL) are required',
+      });
+    }
+
     const prescription = await Prescription.create({
       elderId,
       caregiverId: req.auth.userId,
-      imageUrl: String(imageUrl).trim(),
+      imageUrl: finalUrl,
       caption: String(caption || '').trim(),
+      medicineName: String(medicineName || '').trim(),
+      dosage: String(dosage || '').trim(),
     });
 
     await MedicalDocument.create({

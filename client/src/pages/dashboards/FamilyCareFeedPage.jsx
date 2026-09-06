@@ -35,8 +35,7 @@ export default function FamilyCareFeedPage() {
       <div className="panel-section">
         <div className="toolbar">
           <p className="muted" style={{ margin: 0 }}>
-            Live summary of check-ins, vitals, and tasks for your elders today
-            (FR-10).
+            Live summary of check-ins, vitals, and tasks for your elders today.
           </p>
           <button type="button" className="secondary" onClick={load}>
             Refresh
@@ -164,8 +163,7 @@ export default function FamilyCareFeedPage() {
               <h2>Medical activity</h2>
               {feed.medicalSessions.length === 0 ? (
                 <p className="muted">
-                  No video sessions yet. This section fills in after FR-02 /
-                  FR-11.
+                  No video sessions yet.
                 </p>
               ) : null}
             </div>

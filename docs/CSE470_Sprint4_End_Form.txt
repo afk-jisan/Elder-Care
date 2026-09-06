@@ -1,0 +1,19 @@
+CSE470 Sprint Update Form S16
+
+Sprint Status: End
+
+Member 1
+ID: 23301302
+Goals/Achievement: Completed FR-08 direct utility bill payment. Family users can add utility bills for an elder. Bills can be paid from the escrow wallet balance.
+
+Member 2
+ID: 22201682
+Goals/Achievement: Completed FR-18 escrow dispute resolution for Admin. Families can open disputes on completed caregiver payments. Admins can review evidence and issue a ruling with a reason.
+
+Member 3
+ID: 22201800
+Goals/Achievement: Completed FR-03 prescription image upload. Caregivers can upload a prescription photo for an assigned elder. The image is stored and visible to family and doctors.
+
+Member 4
+ID: 21301734
+Goals/Achievement: Completed FR-12 view uploaded prescriptions. Doctors can open prescription records for elders in consult. They can review medicine details and image links before writing notes.

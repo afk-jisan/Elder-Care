@@ -84,7 +84,7 @@ export default function CaregiverTasksPage() {
       <div className="panel-section">
         <p className="muted">
           View scheduled tasks for your elders. Completing a task requires an
-          active check-in at that elder (FR-05).
+          active check-in at that elder.
         </p>
 
         <div className="toolbar">

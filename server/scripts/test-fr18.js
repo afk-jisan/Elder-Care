@@ -69,6 +69,10 @@ async function run() {
   const open = listed.disputes.find((d) => d.id === dispute.disputeId);
   assert(open?.status === 'open', 'Admin should see open dispute');
 
+  const remainingBefore = (
+    await request('/family/wallet', { token: familyToken })
+  ).wallet.remainingBudget;
+
   const resolved = await request(
     `/admin/disputes/${dispute.disputeId}/resolve`,
     {
@@ -81,6 +85,52 @@ async function run() {
     }
   );
   assert(resolved.ruling === 'refund_family', 'Ruling should stick');
+  const remainingAfter = (
+    await request('/family/wallet', { token: familyToken })
+  ).wallet.remainingBudget;
+  assert(
+    remainingAfter === remainingBefore + 800,
+    'Refund should return money to the family wallet'
+  );
+
+  const splitPay = await request('/family/wallet/release', {
+    method: 'POST',
+    token: familyToken,
+    body: { amount: 200, caregiverId: caregiver.id },
+  });
+  const splitDispute = await request('/family/disputes', {
+    method: 'POST',
+    token: familyToken,
+    body: {
+      paymentId: splitPay.payment.id,
+      evidence: 'Visit was only half completed',
+    },
+  });
+  const remainingBeforeSplit = (
+    await request('/family/wallet', { token: familyToken })
+  ).wallet.remainingBudget;
+  await request(`/admin/disputes/${splitDispute.disputeId}/resolve`, {
+    method: 'POST',
+    token: adminToken,
+    body: {
+      ruling: 'split',
+      reason: 'Split 50 / 50',
+    },
+  });
+  const remainingAfterSplit = (
+    await request('/family/wallet', { token: familyToken })
+  ).wallet.remainingBudget;
+  assert(
+    remainingAfterSplit === remainingBeforeSplit + 100,
+    'Split should return half to the family wallet'
+  );
+  const caregiverPays = await request('/caregiver/payments', {
+    token: caregiverToken,
+  });
+  const splitRow = caregiverPays.payments.find(
+    (p) => p.id === splitPay.payment.id
+  );
+  assert(splitRow?.amount === 100, 'Caregiver should keep only half after split');
   console.log('FR-18 OK');
 
   const assignments = await request('/caregiver/assignments/active', {

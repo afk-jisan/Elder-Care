@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { homePathForRole } from '../lib/rolePaths';
+import PasswordInput from '../components/PasswordInput';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -26,10 +27,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="card">
+    <div className="card auth-card">
+      <p className="auth-kicker muted">
+        <Link to="/">Elder Care</Link>
+      </p>
       <h1>Log in</h1>
-      <p className="muted">Elder Care platform</p>
-      <form onSubmit={handleSubmit} className="form">
+      <p className="auth-lead muted">Sign in to your dashboard</p>
+      <form onSubmit={handleSubmit} className="form auth-form">
         <label>
           Email
           <input
@@ -40,22 +44,18 @@ export default function LoginPage() {
             autoComplete="email"
           />
         </label>
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-          />
-        </label>
+        <PasswordInput
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+        />
         {error && <p className="error">{error}</p>}
         <button type="submit" disabled={submitting}>
           {submitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
-      <p className="muted">
+      <p className="auth-footer muted">
         No account? <Link to="/register">Register</Link>
       </p>
     </div>

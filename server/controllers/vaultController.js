@@ -4,8 +4,58 @@ import {
   DOCUMENT_TYPES,
 } from '../models/MedicalDocument.js';
 import { Elder } from '../models/Elder.js';
+import { uploadToImgbb, hasImageUploadConfig } from '../utils/imgbb.js';
+
+const MIME_LABELS = {
+  'image/jpeg': 'JPEG',
+  'image/jpg': 'JPEG',
+  'image/png': 'PNG',
+  'image/gif': 'GIF',
+  'image/webp': 'WEBP',
+  'application/pdf': 'PDF',
+  'text/plain': 'TXT',
+};
+
+const EXT_LABELS = {
+  jpg: 'JPEG',
+  jpeg: 'JPEG',
+  png: 'PNG',
+  gif: 'GIF',
+  webp: 'WEBP',
+  pdf: 'PDF',
+  txt: 'TXT',
+  doc: 'DOC',
+  docx: 'DOCX',
+};
+
+function labelFromMime(mime) {
+  const key = String(mime || '').toLowerCase().split(';')[0].trim();
+  return MIME_LABELS[key] || '';
+}
+
+function extensionFromName(value) {
+  const match = String(value || '')
+    .split('?')[0]
+    .split('#')[0]
+    .match(/\.([a-z0-9]+)$/i);
+  return match ? match[1].toLowerCase() : '';
+}
+
+function inferFileType({ mimeType, fileName, url }) {
+  const fromMime = labelFromMime(mimeType);
+  if (fromMime) return fromMime;
+  const ext =
+    extensionFromName(fileName) || extensionFromName(url || '');
+  if (EXT_LABELS[ext]) return EXT_LABELS[ext];
+  if (ext) return ext.toUpperCase();
+  if (url) return 'Link';
+  return '';
+}
 
 function docDto(doc) {
+  const url = doc.url;
+  const fileType =
+    doc.fileType || inferFileType({ fileName: doc.fileName, url });
   return {
     id: doc._id.toString(),
     elderId: doc.elderId?._id
@@ -16,7 +66,9 @@ function docDto(doc) {
       : undefined,
     type: doc.type,
     title: doc.title,
-    url: doc.url,
+    url,
+    fileType,
+    fileName: doc.fileName || '',
     notes: doc.notes,
     shareToken: doc.shareToken,
     shareExpiresAt: doc.shareExpiresAt,
@@ -39,10 +91,11 @@ export async function listVaultDocuments(req, res, next) {
 
 export async function uploadVaultDocument(req, res, next) {
   try {
-    const { elderId, type, title, url, notes } = req.body;
-    if (!elderId || !type || !title || !url) {
+    const { elderId, type, title, url, imageBase64, notes, fileName, mimeType } =
+      req.body;
+    if (!elderId || !type || !title || (!url && !imageBase64)) {
       return res.status(400).json({
-        message: 'Elder, type, title, and URL are required',
+        message: 'Elder, type, title, and URL or image are required',
       });
     }
     if (!DOCUMENT_TYPES.includes(type)) {
@@ -57,12 +110,38 @@ export async function uploadVaultDocument(req, res, next) {
       return res.status(404).json({ message: 'Elder not found' });
     }
 
+    let finalUrl = url ? String(url).trim() : '';
+    let detectedMime = mimeType || '';
+    if (imageBase64) {
+      if (!hasImageUploadConfig()) {
+        return res.status(503).json({
+          message: 'Image upload is not configured',
+        });
+      }
+      if (!detectedMime && String(imageBase64).startsWith('data:')) {
+        detectedMime = String(imageBase64).slice(5).split(';')[0] || '';
+      }
+      const uploaded = await uploadToImgbb(imageBase64, {
+        name: `vault-${elderId}-${Date.now()}`,
+      });
+      finalUrl = uploaded.url;
+    }
+
+    const originalName = String(fileName || '').trim();
+    const fileType = inferFileType({
+      mimeType: detectedMime,
+      fileName: originalName,
+      url: finalUrl,
+    });
+
     const doc = await MedicalDocument.create({
       elderId,
       familyMemberId: req.auth.userId,
       type,
       title: String(title).trim(),
-      url: String(url).trim(),
+      url: finalUrl,
+      fileType,
+      fileName: originalName,
       notes: String(notes || '').trim(),
     });
 
@@ -100,11 +179,13 @@ export async function createShareLink(req, res, next) {
     doc.shareExpiresAt = new Date(Date.now() + hours * 60 * 60 * 1000);
     await doc.save();
 
+    const clientOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
     res.json({
       message: 'Share link created',
       shareToken: doc.shareToken,
       shareExpiresAt: doc.shareExpiresAt,
       sharePath: `/api/vault/shared/${doc.shareToken}`,
+      shareUrl: `${clientOrigin}/share/${doc.shareToken}`,
     });
   } catch (err) {
     next(err);

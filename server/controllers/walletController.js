@@ -13,6 +13,20 @@ function walletDto(wallet) {
 }
 
 function paymentDto(p) {
+  const caregiverRef = p.caregiverId;
+  const familyRef = p.familyMemberId;
+  const caregiverId =
+    caregiverRef && caregiverRef._id
+      ? caregiverRef._id.toString()
+      : caregiverRef
+        ? caregiverRef.toString()
+        : null;
+  const familyMemberId =
+    familyRef && familyRef._id
+      ? familyRef._id.toString()
+      : familyRef
+        ? familyRef.toString()
+        : null;
   return {
     id: p._id.toString(),
     amount: p.amount,
@@ -23,7 +37,14 @@ function paymentDto(p) {
     otpVerified: p.otpVerified,
     receiptUrl: p.receiptUrl,
     note: p.note,
-    caregiverId: p.caregiverId ? p.caregiverId.toString() : null,
+    caregiverId,
+    caregiver: caregiverRef?.name
+      ? { id: caregiverId, name: caregiverRef.name }
+      : undefined,
+    familyMemberId,
+    family: familyRef?.name
+      ? { id: familyMemberId, name: familyRef.name }
+      : undefined,
     taskId: p.taskId ? p.taskId.toString() : null,
     createdAt: p.createdAt,
   };
@@ -45,6 +66,7 @@ export async function getWallet(req, res, next) {
   try {
     const wallet = await getOrCreateWallet(req.auth.userId);
     const payments = await Payment.find({ familyMemberId: req.auth.userId })
+      .populate('caregiverId', 'name')
       .sort({ createdAt: -1 })
       .limit(50);
     res.json({ wallet: walletDto(wallet), payments: payments.map(paymentDto) });
@@ -97,12 +119,12 @@ export async function loadWallet(req, res, next) {
       amount,
       type: 'escrow_load',
       status: 'completed',
-      note: 'Mock gateway load',
+      note: 'Wallet top-up',
       receiptUrl: `https://example.local/receipts/load-${Date.now()}.pdf`,
     });
 
     res.status(201).json({
-      message: 'Funds loaded (mock gateway)',
+      message: 'Funds added to your wallet',
       wallet: walletDto(wallet),
       payment: paymentDto(payment),
     });
@@ -155,10 +177,10 @@ export async function releasePayment(req, res, next) {
           taskId: taskId || null,
           otpRequired: true,
           otpCode: expected,
-          note: 'OTP required for releases above 10000 BDT (mock OTP 123456)',
+          note: 'OTP required for releases above 10,000 BDT',
         });
         return res.status(202).json({
-          message: 'OTP required. Use mock code 123456',
+          message: 'OTP required for this amount. Use code 123456.',
           payment: paymentDto(pending),
         });
       }
@@ -182,7 +204,7 @@ export async function releasePayment(req, res, next) {
       otpRequired,
       otpVerified: otpRequired,
       receiptUrl: `https://example.local/receipts/release-${Date.now()}.pdf`,
-      note: 'Mock escrow release',
+      note: 'Caregiver payout',
     });
 
     res.json({
@@ -227,6 +249,28 @@ export async function confirmReleaseOtp(req, res, next) {
       message: 'OTP verified and payment released',
       wallet: walletDto(wallet),
       payment: paymentDto(payment),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listCaregiverPayments(req, res, next) {
+  try {
+    const payments = await Payment.find({
+      caregiverId: req.auth.userId,
+      type: { $in: ['manual_release', 'task_release'] },
+    })
+      .populate('familyMemberId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    const completed = payments.filter((p) => p.status === 'completed');
+    const totalReceived = completed.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+    res.json({
+      totalReceived,
+      payments: payments.map(paymentDto),
     });
   } catch (err) {
     next(err);

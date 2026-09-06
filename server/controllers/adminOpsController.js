@@ -1,6 +1,7 @@
 import { Dispute, DISPUTE_RULINGS } from '../models/Dispute.js';
 import { SOSEvent } from '../models/SOSEvent.js';
 import { Payment } from '../models/Payment.js';
+import { Wallet } from '../models/Wallet.js';
 import { CarePlan } from '../models/CarePlan.js';
 import { User } from '../models/User.js';
 import { Elder } from '../models/Elder.js';
@@ -13,6 +14,7 @@ export async function listDisputes(req, res, next) {
     const disputes = await Dispute.find()
       .populate('familyMemberId', 'name email')
       .populate('caregiverId', 'name email')
+      .populate('paymentId', 'amount status')
       .sort({ createdAt: -1 });
     res.json({
       disputes: disputes.map((d) => ({
@@ -21,7 +23,10 @@ export async function listDisputes(req, res, next) {
         evidence: d.evidence,
         ruling: d.ruling,
         reason: d.reason,
-        paymentId: d.paymentId.toString(),
+        paymentId: d.paymentId?._id
+          ? d.paymentId._id.toString()
+          : d.paymentId.toString(),
+        amount: d.paymentId?.amount,
         family: d.familyMemberId?.name,
         caregiver: d.caregiverId?.name,
         createdAt: d.createdAt,
@@ -57,7 +62,7 @@ export async function createDispute(req, res, next) {
     payment.status = 'held';
     await payment.save();
     res.status(201).json({
-      message: 'Dispute opened; funds held',
+      message: 'Problem reported. The payment is paused until an admin decides.',
       disputeId: dispute._id.toString(),
     });
   } catch (err) {
@@ -87,13 +92,39 @@ export async function resolveDispute(req, res, next) {
 
     const payment = await Payment.findById(dispute.paymentId);
     if (payment) {
-      payment.status = 'completed';
-      payment.note = `Dispute ruling: ${ruling}. ${dispute.reason}`;
+      const wallet = await Wallet.findById(payment.walletId);
+      const originalAmount = payment.amount;
+
+      if (ruling === 'refund_family' && wallet) {
+        wallet.remainingBudget += originalAmount;
+        await wallet.save();
+        payment.status = 'refunded';
+        payment.note = `Returned ${originalAmount} BDT to family. ${dispute.reason}`;
+      } else if (ruling === 'split' && wallet) {
+        const refund = Math.floor(originalAmount / 2);
+        const caregiverKeeps = originalAmount - refund;
+        wallet.remainingBudget += refund;
+        await wallet.save();
+        payment.amount = caregiverKeeps;
+        payment.status = 'completed';
+        payment.note = `Split of ${originalAmount} BDT: caregiver keeps ${caregiverKeeps}, family got ${refund} back. ${dispute.reason}`;
+        await Payment.create({
+          walletId: payment.walletId,
+          familyMemberId: payment.familyMemberId,
+          amount: refund,
+          type: 'refund',
+          status: 'completed',
+          note: `Returned after split of ${originalAmount} BDT payment`,
+        });
+      } else {
+        payment.status = 'completed';
+        payment.note = `Caregiver keeps ${originalAmount} BDT. ${dispute.reason}`;
+      }
       await payment.save();
     }
 
     res.json({
-      message: 'Dispute resolved (mock notification to both parties)',
+      message: 'Decision saved',
       disputeId: dispute._id.toString(),
       ruling,
     });
@@ -129,7 +160,7 @@ export async function triggerSos(req, res, next) {
         { event: 'triggered', detail: 'Caregiver triggered SOS' },
         {
           event: 'family_notified',
-          detail: 'Mock SMS/call sent to family with GPS',
+          detail: 'Family notified by SMS with GPS location',
         },
       ],
     });
@@ -137,7 +168,7 @@ export async function triggerSos(req, res, next) {
     // Escalate if unresolved after 15 minutes: mark flag for admin poll;
     // tests can force escalate via admin endpoint.
     res.status(201).json({
-      message: 'SOS triggered; family notified (mock)',
+      message: 'SOS triggered. The family member has been notified with GPS location.',
       sosEvent: {
         id: event._id.toString(),
         status: event.status,

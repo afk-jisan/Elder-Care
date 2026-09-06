@@ -202,7 +202,9 @@
 
 ## Notes
 
-- External services (100ms, payment gateway, SMS, imgbb) are **mocked** for local runs.
+- External services: **100ms is live** (`HMS_ACCESS_KEY` / `HMS_APP_SECRET` in `server/.env`). Sessions create real rooms and return client auth tokens via `GET .../sessions/:id/token`.
+- **ImgBB** is wired (`IMGBB_API_KEY`). The key currently returns ImgBB error 103 (forbidden); uploads automatically fall back to `server/uploads/` served at `/uploads/...`. Replace the key in `.env` when you have a working ImgBB account.
 - Commits on `integration` use local git identity for now; remote feature branches get owner authors at PAT handoff.
 - Sprint 2 forms under `docs/CSE470_Sprint2_*` may sit uncommitted separately from FR work.
 - Video availability: doctor must have a slot covering the current weekday/time (tests create `00:00-23:59` for today).
+- Default 100ms roles are `host` (doctor) and `guest` (caregiver); override with `HMS_ROLE_DOCTOR` / `HMS_ROLE_CAREGIVER` if your template uses different names.

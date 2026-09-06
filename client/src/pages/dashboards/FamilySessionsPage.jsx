@@ -3,6 +3,29 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Modal from '../../components/Modal';
 import { apiRequest } from '../../api/client';
 
+function RatingCell({ rating, rated, onRate, canRate }) {
+  if (rating) {
+    return (
+      <span className="rating-stars" title={rating.review || 'No written review'}>
+        {'★'.repeat(rating.score)}
+        {'☆'.repeat(5 - rating.score)}
+        <span className="rating-score">{rating.score}/5</span>
+      </span>
+    );
+  }
+  if (canRate) {
+    return (
+      <button type="button" onClick={onRate}>
+        Rate doctor
+      </button>
+    );
+  }
+  if (rated) {
+    return <span className="muted">Rated</span>;
+  }
+  return <span className="muted">—</span>;
+}
+
 export default function FamilySessionsPage() {
   const [sessions, setSessions] = useState([]);
   const [error, setError] = useState('');
@@ -31,6 +54,14 @@ export default function FamilySessionsPage() {
     load();
   }, []);
 
+  function openRate(id) {
+    setSessionId(id);
+    setFormError('');
+    setScore('5');
+    setReview('');
+    setRateOpen(true);
+  }
+
   async function submitRate(e) {
     e.preventDefault();
     setFormError('');
@@ -55,7 +86,7 @@ export default function FamilySessionsPage() {
     <DashboardLayout title="Consultations">
       <div className="panel-section">
         <p className="muted">
-          Ended video sessions appear here so you can rate the doctor (FR-15).
+          Ended video sessions appear here so you can rate the doctor.
         </p>
         {error && <p className="error">{error}</p>}
         {message && <p className="success">{message}</p>}
@@ -69,33 +100,32 @@ export default function FamilySessionsPage() {
               <thead>
                 <tr>
                   <th>Elder</th>
+                  <th>Caregiver</th>
                   <th>Doctor</th>
-                  <th>Status</th>
+                  <th className="col-status">Status</th>
                   <th>Minutes</th>
-                  <th />
+                  <th>Rating</th>
+                  <th>Review</th>
                 </tr>
               </thead>
               <tbody>
                 {sessions.map((s) => (
                   <tr key={s.id}>
                     <td>{s.elder?.name || s.elderId}</td>
+                    <td>{s.caregiver?.name || '—'}</td>
                     <td>{s.doctor?.name || s.doctorId}</td>
                     <td>{s.status}</td>
                     <td>{s.durationMinutes || '—'}</td>
                     <td>
-                      {s.status === 'ended' && !s.rated && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSessionId(s.id);
-                            setFormError('');
-                            setRateOpen(true);
-                          }}
-                        >
-                          Rate doctor
-                        </button>
-                      )}
-                      {s.rated && <span className="muted">Rated</span>}
+                      <RatingCell
+                        rating={s.rating}
+                        rated={s.rated}
+                        canRate={s.status === 'ended' && !s.rated}
+                        onRate={() => openRate(s.id)}
+                      />
+                    </td>
+                    <td className="review-cell">
+                      {s.rating?.review ? s.rating.review : '—'}
                     </td>
                   </tr>
                 ))}

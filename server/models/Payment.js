@@ -13,6 +13,7 @@ export const PAYMENT_STATUSES = [
   'completed',
   'failed',
   'held',
+  'refunded',
 ];
 
 const paymentSchema = new mongoose.Schema(

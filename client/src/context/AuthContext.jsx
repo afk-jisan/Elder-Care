@@ -1,16 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../api/client';
+import { clearToken, getToken, setToken } from '../lib/authStorage';
 
 const AuthContext = createContext(null);
-
-const STORAGE_KEY = 'token';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem(STORAGE_KEY);
+    const token = getToken();
     if (!token) {
       setLoading(false);
       return;
@@ -18,7 +17,7 @@ export function AuthProvider({ children }) {
 
     apiRequest('/auth/me')
       .then((data) => setUser(data.user))
-      .catch(() => localStorage.removeItem(STORAGE_KEY))
+      .catch(() => clearToken())
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,7 +31,7 @@ export function AuthProvider({ children }) {
           method: 'POST',
           body: JSON.stringify({ email, password }),
         });
-        localStorage.setItem(STORAGE_KEY, data.token);
+        setToken(data.token);
         setUser(data.user);
         return data.user;
       },
@@ -41,7 +40,7 @@ export function AuthProvider({ children }) {
           method: 'POST',
           body: JSON.stringify(payload),
         });
-        localStorage.setItem(STORAGE_KEY, data.token);
+        setToken(data.token);
         setUser(data.user);
         return data.user;
       },
@@ -60,7 +59,7 @@ export function AuthProvider({ children }) {
         } catch {
           // Clear local session even if the server call fails
         }
-        localStorage.removeItem(STORAGE_KEY);
+        clearToken();
         setUser(null);
       },
     }),

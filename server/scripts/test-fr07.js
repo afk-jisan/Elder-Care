@@ -65,6 +65,18 @@ async function run() {
     }
   );
   assert(confirmed.payment.status === 'completed', 'OTP confirm failed');
+
+  const caregiverToken = await login(
+    'rafiq.caregiver@eldercare.bd',
+    '12345678'
+  );
+  const received = await request('/caregiver/payments', {
+    token: caregiverToken,
+  });
+  assert(
+    Array.isArray(received.payments) && received.payments.length > 0,
+    'Caregiver should see released payments'
+  );
   console.log('FR-07 test passed');
 }
 

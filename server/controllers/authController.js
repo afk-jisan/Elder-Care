@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User, ROLES } from '../models/User.js';
+import { CaregiverVetting } from '../models/CaregiverVetting.js';
 
 function signToken(user) {
   return jwt.sign(
@@ -16,7 +17,100 @@ function publicUser(user) {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    verificationStatus: user.verificationStatus,
+    countryOfResidence: user.countryOfResidence || undefined,
+    relationshipToElder: user.relationshipToElder || undefined,
+    yearsExperience: user.yearsExperience ?? undefined,
+    serviceArea: user.serviceArea || undefined,
+    bmdcRegistrationNo: user.bmdcRegistrationNo || undefined,
+    specialization: user.specialization || undefined,
+    organizationName: user.organizationName || undefined,
   };
+}
+
+function adminInviteCode() {
+  return process.env.ADMIN_INVITE_CODE || 'eldercare-admin-dev';
+}
+
+function validateRoleProfile(role, body) {
+  switch (role) {
+    case 'family': {
+      if (!String(body.countryOfResidence || '').trim()) {
+        return 'Country of residence is required for family accounts';
+      }
+      return null;
+    }
+    case 'caregiver': {
+      const nid = String(body.nidNumber || '').trim();
+      if (!nid) {
+        return 'National ID number is required for caregivers';
+      }
+      if (!/^\d{10,17}$/.test(nid)) {
+        return 'Enter a valid NID number (10 to 17 digits)';
+      }
+      const years = Number(body.yearsExperience);
+      if (!Number.isFinite(years) || years < 0) {
+        return 'Years of experience must be 0 or more';
+      }
+      if (!String(body.serviceArea || '').trim()) {
+        return 'Service area is required for caregivers';
+      }
+      return null;
+    }
+    case 'doctor': {
+      if (!String(body.bmdcRegistrationNo || '').trim()) {
+        return 'BMDC registration number is required for doctors';
+      }
+      if (!String(body.specialization || '').trim()) {
+        return 'Specialization is required for doctors';
+      }
+      return null;
+    }
+    case 'admin': {
+      const code = String(body.adminInviteCode || '').trim();
+      if (!code) {
+        return 'Admin invite code is required';
+      }
+      if (code !== adminInviteCode()) {
+        return 'Invalid admin invite code';
+      }
+      return null;
+    }
+    default:
+      return 'Invalid role';
+  }
+}
+
+function buildUserPayload(role, body) {
+  const payload = {
+    name: String(body.name).trim(),
+    email: String(body.email).trim(),
+    phone: String(body.phone).trim(),
+    password: body.password,
+    role,
+  };
+
+  if (role === 'family') {
+    payload.countryOfResidence = String(body.countryOfResidence).trim();
+    payload.relationshipToElder = String(body.relationshipToElder || '').trim();
+  }
+
+  if (role === 'caregiver') {
+    payload.yearsExperience = Number(body.yearsExperience);
+    payload.serviceArea = String(body.serviceArea).trim();
+    payload.verificationStatus = 'pending';
+  }
+
+  if (role === 'doctor') {
+    payload.bmdcRegistrationNo = String(body.bmdcRegistrationNo).trim();
+    payload.specialization = String(body.specialization).trim();
+  }
+
+  if (role === 'admin') {
+    payload.organizationName = String(body.organizationName || '').trim();
+  }
+
+  return payload;
 }
 
 export async function register(req, res, next) {
@@ -37,11 +131,28 @@ export async function register(req, res, next) {
         .json({ message: 'Password must be at least 8 characters' });
     }
 
-    const user = await User.create({ name, email, phone, password, role });
+    const profileError = validateRoleProfile(role, req.body);
+    if (profileError) {
+      return res.status(400).json({ message: profileError });
+    }
+
+    const user = await User.create(buildUserPayload(role, req.body));
+
+    if (role === 'caregiver') {
+      await CaregiverVetting.create({
+        caregiverId: user._id,
+        nidNumber: String(req.body.nidNumber).trim(),
+        status: 'pending',
+      });
+    }
+
     const token = signToken(user);
 
     res.status(201).json({
-      message: 'Registration successful',
+      message:
+        role === 'caregiver'
+          ? 'Registration successful. Your vetting review will start soon.'
+          : 'Registration successful',
       token,
       user: publicUser(user),
     });

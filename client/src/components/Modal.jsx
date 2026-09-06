@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function Modal({ open, title, onClose, children }) {
+export default function Modal({ open, title, onClose, children, className = '' }) {
   useEffect(() => {
     if (!open) return undefined;
 
@@ -22,7 +22,7 @@ export default function Modal({ open, title, onClose, children }) {
   if (!open) return null;
 
   return createPortal(
-    <div className="modal-root" role="presentation">
+    <div className={`modal-root${className ? ` ${className}` : ''}`} role="presentation">
       <div
         className="modal-backdrop"
         aria-hidden="true"

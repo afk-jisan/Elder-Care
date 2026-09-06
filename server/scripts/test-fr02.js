@@ -82,8 +82,12 @@ async function run() {
     body: { elderId, doctorId },
   });
   assert(created.session?.status === 'requested', 'Session should be requested');
-  assert(created.session?.roomId?.startsWith('mock-100ms-'), 'Mock room id');
-  console.log('FR-02 initiate OK:', created.session.id);
+  assert(created.session?.roomId, 'Room id missing');
+  assert(
+    !String(created.session.roomId).startsWith('mock-100ms-'),
+    'Expected live 100ms room id (check HMS_ACCESS_KEY / HMS_APP_SECRET)'
+  );
+  console.log('FR-02 initiate OK:', created.session.id, created.session.roomId);
 
   const doctorSessions = await request('/doctor/sessions', {
     token: doctorToken,
@@ -100,7 +104,14 @@ async function run() {
     }
   );
   assert(accepted.session.status === 'active', 'Session should become active');
-  console.log('FR-11 join OK:', accepted.session.roomId);
+
+  const join = await request(
+    `/doctor/sessions/${created.session.id}/token`,
+    { token: doctorToken }
+  );
+  assert(join.authToken, '100ms auth token missing');
+  assert(join.roomId === created.session.roomId, 'Join room mismatch');
+  console.log('FR-11 join OK:', join.roomId, 'role', join.role);
 
   const ended = await request(`/doctor/sessions/${created.session.id}/end`, {
     method: 'POST',

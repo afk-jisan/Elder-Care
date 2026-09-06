@@ -71,16 +71,24 @@ async function run() {
   );
   const elderId = await ensureActivePlan(familyToken, caregiverToken);
 
+  const tinyGifBase64 =
+    'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
   const uploaded = await request('/caregiver/prescriptions', {
     method: 'POST',
     token: caregiverToken,
     body: {
       elderId,
-      imageUrl: 'https://example.local/rx-demo.png',
+      imageBase64: tinyGifBase64,
       caption: 'Morning meds photo',
     },
   });
   assert(uploaded.prescription?.id, 'Prescription missing');
+  assert(
+    String(uploaded.prescription.imageUrl).includes('ibb.co') ||
+      String(uploaded.prescription.imageUrl).includes('/uploads/'),
+    'Expected ImgBB or local hosted URL'
+  );
 
   const familyList = await request('/family/prescriptions', {
     token: familyToken,
@@ -92,7 +100,7 @@ async function run() {
 
   const vault = await request('/family/vault', { token: familyToken });
   assert(
-    vault.documents.some((d) => d.url === 'https://example.local/rx-demo.png'),
+    vault.documents.some((d) => d.url === uploaded.prescription.imageUrl),
     'Upload should also land in vault'
   );
   console.log('FR-03 test passed');

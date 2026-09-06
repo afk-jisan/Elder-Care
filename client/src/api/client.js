@@ -1,3 +1,5 @@
+import { getToken } from '../lib/authStorage';
+
 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export async function apiRequest(path, options = {}) {
@@ -6,7 +8,7 @@ export async function apiRequest(path, options = {}) {
     ...options.headers,
   };
 
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }

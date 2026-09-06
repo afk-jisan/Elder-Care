@@ -192,7 +192,7 @@ export default function AdminVettingPage() {
       <div className="panel-section">
         <p className="muted">
           Complete NID, police clearance, references, and probation before a
-          caregiver can join the family assignment pool (FR-17).
+          caregiver can join the family assignment pool.
         </p>
 
         <form className="toolbar" onSubmit={handleStart}>

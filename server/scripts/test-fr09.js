@@ -67,6 +67,10 @@ async function run() {
     body: { hours: 2 },
   });
   assert(share.shareToken, 'Share token missing');
+  assert(
+    String(share.shareUrl || '').includes(`/share/${share.shareToken}`),
+    'Share URL missing'
+  );
 
   const publicDoc = await request(`/vault/shared/${share.shareToken}`);
   assert(publicDoc.document.id === saved.document.id, 'Shared doc mismatch');

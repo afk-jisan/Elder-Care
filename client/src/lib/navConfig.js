@@ -48,6 +48,7 @@ export const ROLE_NAV = {
       icon: PrescriptionIcon,
     },
     { to: '/caregiver/video', label: 'Video', icon: Video01Icon },
+    { to: '/caregiver/payments', label: 'Payments', icon: Wallet01Icon },
   ],
   doctor: [
     { to: '/doctor', label: 'Overview', end: true, icon: Home01Icon },

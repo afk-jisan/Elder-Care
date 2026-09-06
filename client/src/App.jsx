@@ -4,8 +4,10 @@ import {
   ProtectedRoute,
   PublicOnlyRoute,
 } from './components/ProtectedRoute';
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import SharedDocumentPage from './pages/SharedDocumentPage';
 import RoleHomeRedirect from './pages/RoleHomeRedirect';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminUsersPage from './pages/dashboards/AdminUsersPage';
@@ -26,6 +28,7 @@ import CaregiverTasksPage from './pages/dashboards/CaregiverTasksPage';
 import CaregiverVitalsPage from './pages/dashboards/CaregiverVitalsPage';
 import CaregiverPrescriptionsPage from './pages/dashboards/CaregiverPrescriptionsPage';
 import CaregiverVideoPage from './pages/dashboards/CaregiverVideoPage';
+import CaregiverPaymentsPage from './pages/dashboards/CaregiverPaymentsPage';
 import DoctorDashboard from './pages/dashboards/DoctorDashboard';
 import DoctorAvailabilityPage from './pages/dashboards/DoctorAvailabilityPage';
 import DoctorSessionsPage from './pages/dashboards/DoctorSessionsPage';
@@ -37,7 +40,8 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<RoleHomeRedirect />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/share/:token" element={<SharedDocumentPage />} />
           <Route path="/dashboard" element={<RoleHomeRedirect />} />
           <Route element={<PublicOnlyRoute />}>
             <Route
@@ -96,6 +100,10 @@ function App() {
               element={<CaregiverPrescriptionsPage />}
             />
             <Route path="/caregiver/video" element={<CaregiverVideoPage />} />
+            <Route
+              path="/caregiver/payments"
+              element={<CaregiverPaymentsPage />}
+            />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route path="/doctor" element={<DoctorDashboard />} />
@@ -105,7 +113,7 @@ function App() {
             />
             <Route path="/doctor/sessions" element={<DoctorSessionsPage />} />
           </Route>
-          <Route path="*" element={<RoleHomeRedirect />} />
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

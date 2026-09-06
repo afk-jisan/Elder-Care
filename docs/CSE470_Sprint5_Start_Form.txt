@@ -1,0 +1,19 @@
+CSE470 Sprint Update Form S16
+
+Sprint Status: Start
+
+Member 1
+ID: 23301302
+Goals/Achievement: Will implement FR-09 medical document vault and FR-10 real time care status feed. Family users will store elder health documents and create time limited share links. They will also see check ins, vitals, tasks, and alerts in one feed.
+
+Member 2
+ID: 22201682
+Goals/Achievement: Will implement FR-19 SOS alert cascade and FR-20 analytics dashboard for Admin. Caregivers will trigger SOS with location and admins will escalate or resolve alerts. Admins will also view platform metrics and export reports as CSV.
+
+Member 3
+ID: 22201800
+Goals/Achievement: Will implement FR-04 vitals and behavioral notes and FR-05 assigned task completion. Caregivers will log vitals after visits and decline keywords will be flagged for family review. They will also view scheduled tasks and mark them complete.
+
+Member 4
+ID: 21301734
+Goals/Achievement: Will implement FR-13 post session notes with digital Rx and FR-15 doctor rating. Doctors will add diagnosis and follow up after a consult and issue a digital prescription. Family users will rate doctors after ended sessions.

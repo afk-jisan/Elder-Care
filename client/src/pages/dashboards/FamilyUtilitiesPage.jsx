@@ -79,7 +79,7 @@ export default function FamilyUtilitiesPage() {
       <div className="panel-section">
         <div className="toolbar">
           <p className="muted" style={{ margin: 0 }}>
-            Pay elder utility bills from escrow (FR-08). Mock payment gateway.
+            Pay elder utility bills from the escrow wallet.
           </p>
           <button
             type="button"

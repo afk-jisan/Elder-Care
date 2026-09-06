@@ -94,7 +94,8 @@ async function run() {
     token: caregiverToken,
     body: {
       elderId,
-      imageUrl: 'https://example.local/rx-fr12.png',
+      imageBase64:
+        'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
       caption: 'Uploaded for FR-12',
       medicineName: 'Amlodipine',
       dosage: '5mg',
@@ -103,8 +104,11 @@ async function run() {
 
   const rxList = await request('/doctor/prescriptions', { token: doctorToken });
   assert(
-    rxList.prescriptions.some((p) => p.imageUrl.includes('rx-fr12')),
-    'Doctor should see uploaded prescriptions'
+    rxList.prescriptions.some((p) => {
+      const url = String(p.imageUrl || '');
+      return url.includes('ibb.co') || url.includes('/uploads/');
+    }),
+    'Doctor should see hosted prescriptions'
   );
   console.log('FR-12 OK');
 

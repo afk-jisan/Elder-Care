@@ -26,6 +26,8 @@ const medicalDocumentSchema = new mongoose.Schema(
     type: { type: String, enum: DOCUMENT_TYPES, required: true },
     title: { type: String, required: true, trim: true },
     url: { type: String, required: true, trim: true },
+    fileType: { type: String, default: '', trim: true },
+    fileName: { type: String, default: '', trim: true },
     notes: { type: String, default: '', trim: true },
     shareToken: { type: String, default: null, index: true },
     shareExpiresAt: { type: Date, default: null },

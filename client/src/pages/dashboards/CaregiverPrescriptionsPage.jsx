@@ -3,11 +3,20 @@ import DashboardLayout from '../../components/DashboardLayout';
 import Modal from '../../components/Modal';
 import { apiRequest } from '../../api/client';
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function CaregiverPrescriptionsPage() {
   const [assignments, setAssignments] = useState([]);
   const [items, setItems] = useState([]);
   const [elderId, setElderId] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [caption, setCaption] = useState('');
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
@@ -40,15 +49,20 @@ export default function CaregiverPrescriptionsPage() {
   async function submit(e) {
     e.preventDefault();
     setFormError('');
+    if (!imageFile) {
+      setFormError('Choose an image file to upload');
+      return;
+    }
     setSaving(true);
     try {
+      const imageBase64 = await fileToBase64(imageFile);
       await apiRequest('/caregiver/prescriptions', {
         method: 'POST',
-        body: JSON.stringify({ elderId, imageUrl, caption }),
+        body: JSON.stringify({ elderId, imageBase64, caption }),
       });
-      setMessage('Prescription uploaded (stored URL; imgbb mocked locally)');
+      setMessage('Prescription uploaded');
       setOpen(false);
-      setImageUrl('');
+      setImageFile(null);
       setCaption('');
       await load();
     } catch (err) {
@@ -63,13 +77,13 @@ export default function CaregiverPrescriptionsPage() {
       <div className="panel-section">
         <div className="toolbar">
           <p className="muted" style={{ margin: 0 }}>
-            Upload prescription images for assigned elders (FR-03). URLs are
-            stored locally (imgbb mocked).
+            Upload prescription images for assigned elders.
           </p>
           <button
             type="button"
             onClick={() => {
               setElderId(assignments[0]?.elder?.id || '');
+              setImageFile(null);
               setOpen(true);
               setFormError('');
             }}
@@ -132,12 +146,12 @@ export default function CaregiverPrescriptionsPage() {
             </select>
           </label>
           <label>
-            Image URL (mock imgbb)
+            Prescription image
             <input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
               required
-              placeholder="https://i.ibb.co/..."
             />
           </label>
           <label>
@@ -147,7 +161,7 @@ export default function CaregiverPrescriptionsPage() {
           {formError && <p className="error">{formError}</p>}
           <div className="form-actions">
             <button type="submit" disabled={saving}>
-              {saving ? 'Saving...' : 'Upload'}
+              {saving ? 'Uploading...' : 'Upload'}
             </button>
             <button type="button" className="secondary" onClick={() => setOpen(false)}>
               Cancel

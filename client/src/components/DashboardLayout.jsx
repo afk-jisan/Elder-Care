@@ -3,7 +3,6 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { UserCircleIcon } from '@hugeicons/core-free-icons';
 import { useAuth } from '../context/AuthContext';
 import { ROLE_NAV } from '../lib/navConfig';
-import { homePathForRole } from '../lib/rolePaths';
 
 export default function DashboardLayout({ title, children }) {
   const { user, logout } = useAuth();
@@ -18,7 +17,7 @@ export default function DashboardLayout({ title, children }) {
     <div className="dashboard-shell">
       <header className="topbar">
         <div className="topbar-brand">
-          <Link to={homePathForRole(user.role)}>Elder Care</Link>
+          <Link to="/">Elder Care</Link>
         </div>
         <div className="topbar-actions">
           <button type="button" className="secondary" onClick={() => logout()}>

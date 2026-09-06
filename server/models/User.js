@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       enum: VERIFICATION_STATUSES,
       default: 'unverified',
     },
+    countryOfResidence: { type: String, trim: true, default: '' },
+    relationshipToElder: { type: String, trim: true, default: '' },
+    yearsExperience: { type: Number, min: 0 },
+    serviceArea: { type: String, trim: true, default: '' },
+    bmdcRegistrationNo: { type: String, trim: true, default: '' },
+    specialization: { type: String, trim: true, default: '' },
+    organizationName: { type: String, trim: true, default: '' },
   },
   { timestamps: true }
 );

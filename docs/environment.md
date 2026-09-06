@@ -11,6 +11,14 @@ Copy the example files and fill in real values locally. Do not commit `.env` fil
 | `MONGODB_URI` | Yes | Atlas connection string. Database name in the path should be `eldercare`. |
 | `JWT_SECRET` | Yes | Secret used to sign login tokens. Use a long random string. |
 | `JWT_EXPIRES_IN` | No | Token lifetime (e.g. `7d`). |
+| `IMGBB_API_KEY` | Preferred for FR-03 | ImgBB API v1 key. If ImgBB rejects the key, uploads fall back to `server/uploads/` served at `/uploads/...`. |
+| `PUBLIC_API_URL` | No | Public base URL used when building local upload links (default `http://localhost:PORT`). |
+| `HMS_ACCESS_KEY` | Yes for live video | 100ms App Access Key from Developer settings. |
+| `HMS_APP_SECRET` | Yes for live video | 100ms App Secret (server only; never expose to client). |
+| `HMS_TEMPLATE_ID` | No | Optional template id; default workspace template is used if omitted. |
+| `HMS_ROLE_DOCTOR` | No | Role name for doctors joining rooms (default `host`). Must match your 100ms template. |
+| `HMS_ROLE_CAREGIVER` | No | Role name for caregivers (default `guest`). Must match your 100ms template. |
+| `HMS_WEBHOOK_URL` | No | Optional webhook URL configured in the 100ms dashboard. |
 
 Example:
 

@@ -133,7 +133,7 @@ export async function payUtilityBill(req, res, next) {
       'name'
     );
     res.json({
-      message: 'Bill paid through mock gateway',
+      message: 'Bill paid successfully',
       bill: billDto(populated),
       paymentId: payment._id.toString(),
     });

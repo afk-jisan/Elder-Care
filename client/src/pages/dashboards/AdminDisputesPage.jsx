@@ -49,8 +49,8 @@ export default function AdminDisputesPage() {
     <DashboardLayout title="Disputes">
       <div className="panel-section">
         <p className="muted">
-          Resolve escrow disputes with a ruling and reason (FR-18). Both parties
-          receive a mock notification.
+          If a family reports a payment problem, review their note and decide
+          who should get the money.
         </p>
         {error && <p className="error">{error}</p>}
         {message && <p className="success">{message}</p>}
@@ -65,9 +65,10 @@ export default function AdminDisputesPage() {
                 <tr>
                   <th>Family</th>
                   <th>Caregiver</th>
+                  <th>Amount</th>
                   <th>Status</th>
-                  <th>Evidence</th>
-                  <th>Ruling</th>
+                  <th>Family note</th>
+                  <th>Decision</th>
                   <th />
                 </tr>
               </thead>
@@ -76,9 +77,18 @@ export default function AdminDisputesPage() {
                   <tr key={d.id}>
                     <td>{d.family}</td>
                     <td>{d.caregiver}</td>
-                    <td>{d.status}</td>
-                    <td>{d.evidence || '—'}</td>
-                    <td>{d.ruling || '—'}</td>
+                    <td>{d.amount != null ? `${d.amount} BDT` : '-'}</td>
+                    <td>{d.status === 'open' ? 'Needs a decision' : 'Decided'}</td>
+                    <td>{d.evidence || '-'}</td>
+                    <td>
+                      {d.ruling === 'release_caregiver'
+                        ? 'Caregiver keeps it'
+                        : d.ruling === 'refund_family'
+                          ? 'Returned to family'
+                          : d.ruling === 'split'
+                            ? 'Split'
+                            : '-'}
+                    </td>
                     <td>
                       {d.status === 'open' && (
                         <div className="form">
@@ -89,20 +99,22 @@ export default function AdminDisputesPage() {
                                 onChange={(e) => setRuling(e.target.value)}
                               >
                                 <option value="release_caregiver">
-                                  Release to caregiver
+                                  Caregiver keeps the money
                                 </option>
                                 <option value="refund_family">
-                                  Refund family
+                                  Return money to family
                                 </option>
-                                <option value="split">Split</option>
+                                <option value="split">
+                                  Split 50 / 50
+                                </option>
                               </select>
                               <input
-                                placeholder="Reason"
+                                placeholder="Why did you decide this?"
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
                               />
                               <button type="button" onClick={() => resolve(d.id)}>
-                                Confirm
+                                Save decision
                               </button>
                             </>
                           ) : (
@@ -113,7 +125,7 @@ export default function AdminDisputesPage() {
                                 setReason('');
                               }}
                             >
-                              Resolve
+                              Decide
                             </button>
                           )}
                         </div>
