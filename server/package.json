@@ -1,0 +1,40 @@
+{
+  "name": "eldercare-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "seed": "node scripts/seed.js",
+    "reset": "node scripts/reset.js",
+    "test:fr06": "node scripts/test-fr06.js",
+    "test:fr01": "node scripts/test-fr01.js",
+    "test:fr14": "node scripts/test-fr14.js",
+    "test:geo": "node scripts/test-geo.js",
+    "test:fr17": "node scripts/test-fr17.js",
+    "test:fr05": "node scripts/test-fr05.js",
+    "test:fr04": "node scripts/test-fr04.js",
+    "test:fr10": "node scripts/test-fr10.js",
+    "test:fr03": "node scripts/test-fr03.js",
+    "test:fr09": "node scripts/test-fr09.js",
+    "test:fr07": "node scripts/test-fr07.js",
+    "test:fr08": "node scripts/test-fr08.js",
+    "test:fr02": "node scripts/test-fr02.js",
+    "test:fr11": "node scripts/test-fr02.js",
+    "test:fr12": "node scripts/test-fr12.js",
+    "test:fr13": "node scripts/test-fr12.js",
+    "test:fr15": "node scripts/test-fr12.js",
+    "test:fr18": "node scripts/test-fr18.js",
+    "test:fr19": "node scripts/test-fr18.js",
+    "test:fr20": "node scripts/test-fr18.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3"
+  }
+}
